@@ -33,7 +33,7 @@ The project details are as follows:
 - logs: Directory where logs are generated.
     * _Logs will be generated in this directory. Each log folder will contain backups of training files with network files and hyperparameters used._
 - models: Directory to store pretrained models, and also where models are generated.
-    * __**INSERT PRE-TRAINED MODELS HERE. The base MobileFaceNet for fine-tuning the GC<sup>2</sup>SA-Net can be downloaded in [this link](https://www.dropbox.com/scl/fo/58uzvjul7g0n77m66hv61/h?rlkey=vw5bi0ipm054tfwxsm5b8no9g&dl=0).**__
+    * __**INSERT PRE-TRAINED MODELS HERE. The base MobileFaceNet for fine-tuning the CB-Net can be downloaded in [this link](https://www.dropbox.com/scl/fo/58uzvjul7g0n77m66hv61/h?rlkey=vw5bi0ipm054tfwxsm5b8no9g&dl=0).**__
     * _Trained models will also be stored in this directory._
 - network: Contains loss functions, and network related files.
     * cb_net.py - CB-Net model file (ICPR/IEEE Access).
