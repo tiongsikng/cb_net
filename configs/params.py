@@ -2,7 +2,7 @@ import torch
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 seed = 42
 save = True
-write_log = False
+write_log = True
 method = 'CB_Net'
 remarks = 'Default'
 

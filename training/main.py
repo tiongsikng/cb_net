@@ -50,7 +50,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
                         metavar='Weight Decay', help='weight decay')
     parser.add_argument('--dropout', '--dropout', default=params.dropout, type=float,
                         metavar='Dropout', help='dropout probability')
-    parser.add_argument('--pretrained', default='./models/pretrained/MobileFaceNet_AF_S30.0_M0.4_D512_EP16.pth', type=str, metavar='PATH',
+    parser.add_argument('--pretrained', default='/home/tiongsik/Python/conditional_biometrics/models/pretrained/MobileFaceNet_AF_S30.0_M0.4_D512_EP16.pth', type=str, metavar='PATH',
                         help='path to pretrained checkpoint (default: none)')
     args = parser.parse_args()
 
@@ -192,7 +192,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     state_dict_temp = {}
 
     for k in state_dict_loaded:
-        if 'conv_6_gap' not in k:
+        if 'conv_6_gap' not in k: # Adaptive layer for periocular
             state_dict_temp[k] = state_dict_pretrained[k]
             # state_dict_temp[k] = state_dict_pretrained['backbone.'+k]
         else:
@@ -411,8 +411,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
         # Use running_stats for training and testing
         if bn_flag != 1:
             for layer in model.modules():
-                if isinstance(layer,torch.nn.modules.batchnorm.BatchNorm2d):
-                    # or isinstance(layer,torch.nn.modules.batchnorm.BatchNorm1d) or isinstance(layer,torch.nn.modules.LayerNorm):                
+                if isinstance(layer,torch.nn.modules.batchnorm.BatchNorm2d):         
                     layer.eval()
                 
         train_acc, loss = train.run_train(model, face_fc = face_fc, peri_fc = peri_fc, 
@@ -428,21 +427,21 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
         # *****
         
         # print('Periocular')
-        _, peri_val_acc = identification.validate_identification(model, peri_loader_val, peri_loader_test, device = device, peri_flag = True)
+        peri_val_acc = identification.intramodal_id(model, peri_loader_val, peri_loader_test, device = device, peri_flag = True)
         peri_val_acc = np.around(peri_val_acc, 4)
         print('Validation Rank-1 IR (Periocular)\t: ', peri_val_acc)    
 
         # print('Face')
-        _, face_val_acc = identification.validate_identification(model, face_loader_val, face_loader_test, device = device, peri_flag = False)
+        face_val_acc = identification.intramodal_id(model, face_loader_val, face_loader_test, device = device, peri_flag = False)
         face_val_acc = np.around(face_val_acc, 4)
         print('Validation Rank-1 IR (Face)\t: ', face_val_acc)    
 
         # Testing (Ethnic)
-        _, ethnic_peri_test_acc = identification.validate_identification(model, ethnic_peri_val_loader, ethnic_peri_test_loader, device = device, peri_flag = True)
+        ethnic_peri_test_acc = identification.intramodal_id(model, ethnic_peri_val_loader, ethnic_peri_test_loader, device = device, peri_flag = True)
         ethnic_peri_test_acc = np.around(ethnic_peri_test_acc, 4)
         print('Test Rank-1 IR (Ethnic - Periocular)\t: ', ethnic_peri_test_acc)   
 
-        _, ethnic_face_test_acc = identification.validate_identification(model, ethnic_face_val_loader, ethnic_face_test_loader, device = device, peri_flag = False)
+        ethnic_face_test_acc = identification.intramodal_id(model, ethnic_face_val_loader, ethnic_face_test_loader, device = device, peri_flag = False)
         ethnic_face_test_acc = np.around(ethnic_face_test_acc, 4)
         print('Test Rank-1 IR (Ethnic - Face)\t: ', ethnic_face_test_acc)   
         
@@ -456,13 +455,10 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
             file.write('Test Rank-1 IR (Face) \t: ' + str(ethnic_face_test_acc) + "\n\n")
             file.close()
 
-        if peri_val_acc >= peri_best_test_acc and epoch + 1 >= lr_sch[0] and save == True:
-        # if peri_pr_test_acc >= peri_best_pr_test_acc and epoch >= epochs - 10: # = lr_sch[1]:            
+        if peri_val_acc >= peri_best_test_acc and epoch + 1 >= lr_sch[0] and save == True:           
             best_epoch = epoch + 1
             best_train_acc = train_acc
-            # best_test_acc = test_acc
 
-            # peri_best_train_acc = peri_train_acc
             peri_best_test_acc = peri_val_acc
 
             best_model = copy.deepcopy(model.state_dict())
@@ -492,9 +488,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
             if not os.path.exists(save_best_acc_dir):
                 os.makedirs(save_best_acc_dir)  
                     
-            tag = str(args.method) + '_S' + str(cf_s) + '_M' + str(cf_m) + '_' + str(args.remarks)
-
-            tag = tag + '_BN' + str(bn_flag) + '_M' + str(bn_moment)       
+            tag = str(args.method) + '_S' + str(cf_s) + '_M' + str(cf_m) + '_' + str(args.remarks) 
 
             save_best_model_path = save_best_model_dir + tag + '_' + str(start_string) + '.pth'
             save_best_face_fc_path = save_best_face_fc_dir + tag + '_' + str(start_string) + '.pth' 
@@ -515,6 +509,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
             with open(save_best_acc_path, 'wb') as f:
                 pickle.dump([ best_epoch, best_train_acc, peri_best_test_acc, peri_best_pr_test_acc ], f)
 
+
     if args.write_log is True:
         file = open(log_nm, 'a+')
         end_ = datetime.now()
@@ -529,12 +524,12 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     print('**** Validation **** \n')
     # Identification - Validation
     print('Periocular - Validation')
-    _, peri_val_acc = identification.validate_identification(model, peri_loader_val, peri_loader_test, device = device, peri_flag = True)
+    peri_val_acc = identification.intramodal_id(model, peri_loader_val, peri_loader_test, device = device, peri_flag = True)
     peri_val_acc = np.around(peri_val_acc, 4)
     print('Validation Rank-1 IR (Periocular)\t: ', peri_val_acc)
 
     print('Face - Validation')
-    _, face_val_acc = identification.validate_identification(model, face_loader_val, face_loader_test, device = device, peri_flag = False)
+    face_val_acc = identification.intramodal_id(model, face_loader_val, face_loader_test, device = device, peri_flag = False)
     face_val_acc = np.around(face_val_acc, 4)
     print('Validation Rank-1 IR (Face)\t: ', face_val_acc)
 
@@ -544,29 +539,29 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     print('\n**** Testing Evaluation (All Datasets) **** \n')
     #### Identification (Face and Periocular)
     print("Rank-1 IR (Periocular) \n")
-    peri_id_dict = identification.kfold_identification(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, device = device)
+    peri_id_dict = identification.im_id_main(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, device = device)
     peri_id_dict = copy.deepcopy(peri_id_dict)
     print(peri_id_dict)
 
     print("Rank-1 IR (Face) \n")
-    face_id_dict = identification.kfold_identification(model, root_pth=config.evaluation['identification'], modal='face', peri_flag = False, device = device)
+    face_id_dict = identification.im_id_main(model, root_pth=config.evaluation['identification'], modal='face', peri_flag = False, device = device)
     face_id_dict = copy.deepcopy(face_id_dict)
     print(face_id_dict)
 
     #### Verification (Face and Periocular)
     print("EER (Periocular) \n")
-    peri_eer_dict = verification.verify(model, out_features, root_drt = config.evaluation['verification'], peri_flag = True, device = device)
+    peri_eer_dict = verification.im_verify(model, out_features, root_drt = config.evaluation['verification'], peri_flag = True, device = device)
     peri_eer_dict = copy.deepcopy(peri_eer_dict)
     print(peri_eer_dict)
 
     print("EER (Face) \n")
-    face_eer_dict = verification.verify(model, out_features, root_drt = config.evaluation['verification'], peri_flag = False, device = device)
+    face_eer_dict = verification.im_verify(model, out_features, root_drt = config.evaluation['verification'], peri_flag = False, device = device)
     face_eer_dict = copy.deepcopy(face_eer_dict)
     print(face_eer_dict)
 
     #### Cross-modal Identification (Face and Periocular)
     print("Cross-Modal Rank-1 IR\n")
-    cm_id_dict_f, cm_id_dict_p= identification.kfold_cm_id(model, root_pth = config.evaluation['identification'], device = device)
+    cm_id_dict_f, cm_id_dict_p= identification.cm_id_main(model, root_pth = config.evaluation['identification'], device = device)
     cm_id_dict_f, cm_id_dict_p = copy.deepcopy(cm_id_dict_f), copy.deepcopy(cm_id_dict_p)
     print(cm_id_dict_p, cm_id_dict_f)
 
@@ -578,7 +573,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
 
     #### Multimodal Identification (Face and Periocular)
     print("Multimodal Rank-1 IR\n")
-    mm_id_dict_concat = identification.kfold_mm_id(model, root_pth = config.evaluation['identification'], mode = 'concat', device = device)
+    mm_id_dict_concat = identification.mm_id_main(model, root_pth = config.evaluation['identification'], mode = 'concat', device = device)
     mm_id_dict_concat = copy.deepcopy(mm_id_dict_concat)
     print('Concat:', mm_id_dict_concat)
 

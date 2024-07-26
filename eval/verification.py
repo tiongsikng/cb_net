@@ -5,11 +5,10 @@ import numpy as np
 import torchvision.transforms as transforms
 import torch.utils.data as data
 from PIL import Image
-from sklearn.metrics import roc_auc_score, plot_roc_curve, roc_curve
+from sklearn.metrics import roc_auc_score, roc_curve
 from torch.nn import functional as F
 import network.cb_net as net
 from network import load_model
-import time
 from configs import config as config
 from data.data_loader import ConvertRGB2BGR, FixedImageStandard
 
@@ -118,7 +117,7 @@ class dataset(data.Dataset):
 
 
 # Verification (Face and Periocular)
-def verify(model, emb_size = 512, root_drt='./data', peri_flag=True, device='cuda:0'):
+def im_verify(model, emb_size = 512, root_drt='./data', peri_flag=True, device='cuda:0'):
     if peri_flag is True:
         modal = 'periocular'
     else:
@@ -385,13 +384,13 @@ if __name__ == '__main__':
     model = net.CB_Net(embedding_size = embd_dim, do_prob=0.0).eval().to(device)
     model = load_model.load_pretrained_network(model, load_model_path, device = device)
 
-    peri_eer_dict = verify(model, emb_size = embd_dim, peri_flag = True, root_drt = config.evaluation['verification'], device = device)
+    peri_eer_dict = im_verify(model, emb_size = embd_dim, peri_flag = True, root_drt = config.evaluation['verification'], device = device)
     peri_eer_dict = get_avg(peri_eer_dict)
     peri_eer_dict = copy.deepcopy(peri_eer_dict)
     print('Average (Periocular):', peri_eer_dict['avg'])
     print('Periocular:', peri_eer_dict)    
 
-    face_eer_dict = verify(model, emb_size = embd_dim, peri_flag = False, root_drt = config.evaluation['verification'], device = device)
+    face_eer_dict = im_verify(model, emb_size = embd_dim, peri_flag = False, root_drt = config.evaluation['verification'], device = device)
     face_eer_dict = get_avg(face_eer_dict)    
     face_eer_dict = copy.deepcopy(face_eer_dict)    
     print('Average (Face):', face_eer_dict['avg'])
