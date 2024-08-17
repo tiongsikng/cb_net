@@ -234,7 +234,7 @@ def run_train(model, face_fc, peri_fc,
 
         if net_params['face_fc_ce_flag'] is True and net_params['peri_fc_ce_flag'] is True and net_params['face_peri_loss_flag'] is True:
             face_peri_loss_tl, ap, an = loss_fn['loss_tl'](torch.cat((face_emb, peri_emb), dim = 0), \
-                                                      torch.cat((face_y, peri_y)), \
+                                                      torch.cat((face_lbl, peri_lbl)), \
                                                       # torch.cat((face_y, peri_y + net_params['face_num_sub'])), \
                                                       tl_min, tl_k, tl_ap_flag)
 
