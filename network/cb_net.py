@@ -64,7 +64,7 @@ class Shared_Linear_block(Module):
         self.conv_peri = Conv2d(in_c, out_channels=out_c, kernel_size=(3, 7), groups=groups, stride=stride, padding=padding, bias=False)
         self.avgpool = AdaptiveAvgPool2d(output_size=(1))
         self.bn = BatchNorm2d(out_c)
-    def forward(self, x, gap_flag = False):
+    def forward(self, x, gap_flag=False):
         if gap_flag is False:
             x = self.conv(x)
         else:
@@ -74,7 +74,7 @@ class Shared_Linear_block(Module):
         return x
 
 class Depth_Wise(Module):
-     def __init__(self, in_c, out_c, residual = False, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=1):
+     def __init__(self, in_c, out_c, residual=False, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=1):
         super(Depth_Wise, self).__init__()
         self.conv = Conv_block(in_c, out_c=groups, kernel=(1, 1), padding=(0, 0), stride=(1, 1))
         self.conv_dw = Conv_block(groups, groups, groups=groups, kernel=kernel, padding=padding, stride=stride)
@@ -105,7 +105,7 @@ class Residual(Module):
 # ***
 
 class CB_Net(Module):
-    def __init__(self, embedding_size = 512, out_h = 7, out_w = 7, do_prob = 0.0, gap_flag=False):
+    def __init__(self, embedding_size=512, out_h=7, out_w=7, do_prob=0.0, gap_flag=False):
         super(CB_Net, self).__init__()
         self.embedding_size = embedding_size
         self.gap_flag = gap_flag
@@ -134,7 +134,7 @@ class CB_Net(Module):
         self.bn = BatchNorm1d(embedding_size)
         self.gap_flag = gap_flag
     
-    def forward(self, x, peri_flag = False):
+    def forward(self, x, peri_flag=False):
         out = self.conv1(x)
         out = self.conv2_dw(out)
         out = self.conv_23(out)
@@ -166,5 +166,5 @@ if __name__ == '__main__':
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') 
 
     load_model_path = './models/CB_Net/best_model/CB_Net.pth'
-    model = CB_Net(embedding_size = embd_dim).eval().to(device)
-    model = load_model.load_pretrained_network(model, load_model_path, device = device)
+    model = CB_Net(embedding_size=embd_dim).eval().to(device)
+    model = load_model.load_pretrained_network(model, load_model_path, device=device)

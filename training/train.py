@@ -101,7 +101,7 @@ def run_train(model, face_fc, peri_fc,
     
     mode = 'Train'
     iter_max = len(face_loader)
-    logger = Logger(mode, length = iter_max, calculate_mean = show_running)
+    logger = Logger(mode, length=iter_max, calculate_mean=show_running)
     
     loss = 0
     metrics = {}
@@ -233,7 +233,7 @@ def run_train(model, face_fc, peri_fc,
             tl_ap_flag = True
 
         if net_params['face_fc_ce_flag'] is True and net_params['peri_fc_ce_flag'] is True and net_params['face_peri_loss_flag'] is True:
-            face_peri_loss_tl, ap, an = loss_fn['loss_tl'](torch.cat((face_emb, peri_emb), dim = 0), \
+            face_peri_loss_tl, ap, an = loss_fn['loss_tl'](torch.cat((face_emb, peri_emb), dim=0), \
                                                       torch.cat((face_lbl, peri_lbl)), \
                                                       # torch.cat((face_y, peri_y + net_params['face_num_sub'])), \
                                                       tl_min, tl_k, tl_ap_flag)
@@ -297,16 +297,16 @@ def run_train(model, face_fc, peri_fc,
 
 # **********
 
-def feature_extractor(model, data_loader, device = 'cuda:0', peri_flag = False, proto_flag = False):    
+def feature_extractor(model, data_loader, device='cuda:0', peri_flag=False, proto_flag=False):    
     emb = torch.tensor([])
-    lbl = torch.tensor([], dtype = torch.int64)
+    lbl = torch.tensor([], dtype=torch.int64)
 
     model = model.eval().to(device)
     
     with torch.no_grad():        
         for batch_idx, (x, y) in enumerate(data_loader):
             x = x.to(device)
-            x = model(x, peri_flag = peri_flag)
+            x = model(x, peri_flag=peri_flag)
 
             emb = torch.cat((emb, x.detach().cpu()), 0)
             lbl = torch.cat((lbl, y))
@@ -315,7 +315,7 @@ def feature_extractor(model, data_loader, device = 'cuda:0', peri_flag = False, 
             time.sleep(0.0001)
 
     if proto_flag is True:
-        lbl_proto = torch.tensor([], dtype = torch.int64)
+        lbl_proto = torch.tensor([], dtype=torch.int64)
         emb_proto = torch.tensor([])
 
         # get unique labels

@@ -36,7 +36,7 @@ def get_avg(dict_list):
 
 
 # Intra-Modal Identification (Main)
-def im_id_main(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, device = 'cuda:0', proto_flag = False):
+def im_id_main(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, device='cuda:0', proto_flag=False):
     print('Modal:', modal[:4])
 
     for datasets in dset_list:
@@ -59,7 +59,7 @@ def im_id_main(model, root_pth=config.evaluation['identification'], modal='perio
         if datasets == 'ethnic':
             ethnic_gal_data_load, ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/' + modal[:4] + '/'), 'test', type=modal, aug='False')
             ethnic_pr_data_load, ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/' + modal[:4] + '/'), 'test', type=modal, aug='False')
-            acc = intramodal_id(model, ethnic_gal_data_load, ethnic_pr_data_load, device = device, peri_flag = peri_flag, proto_flag = proto_flag)
+            acc = intramodal_id(model, ethnic_gal_data_load, ethnic_pr_data_load, device=device, peri_flag=peri_flag, proto_flag=proto_flag)
 
         else:
             # split data loaders into folds
@@ -67,7 +67,7 @@ def im_id_main(model, root_pth=config.evaluation['identification'], modal='perio
             for probes, gallery in kf.split(data_loaders):
                 for i in range(len(probes)):
                     peri_test_acc = intramodal_id(model, data_loaders[int(gallery)], data_loaders[probes[i]], 
-                                                                                                device = device, peri_flag = peri_flag, proto_flag = proto_flag)
+                                                                                                device=device, peri_flag=peri_flag, proto_flag=proto_flag)
                     peri_test_acc = np.around(peri_test_acc, 4)
                     acc.append(peri_test_acc)
 
@@ -81,7 +81,7 @@ def im_id_main(model, root_pth=config.evaluation['identification'], modal='perio
 
 
 # Cross-Modal Identification (Main)
-def cm_id_main(model, root_pth=config.evaluation['identification'], face_model = None, peri_model = None, device = 'cuda:0', proto_flag = False):
+def cm_id_main(model, root_pth=config.evaluation['identification'], face_model=None, peri_model=None, device='cuda:0', proto_flag=False):
     for datasets in dset_list:
 
         root_drt = root_pth + datasets + '/**'
@@ -95,13 +95,13 @@ def cm_id_main(model, root_pth=config.evaluation['identification'], face_model =
         if datasets == 'ethnic':
             ethnic_face_gal_load, ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/face/'), 'test', 'face', aug='False')
             ethnic_peri_pr_load, ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/peri/'), 'test', 'periocular', aug='False')
-            inter_face_gal_acc_ethnic = crossmodal_id(model, ethnic_face_gal_load, ethnic_peri_pr_load, device = device, face_model = face_model, peri_model = peri_model, gallery = 'face', proto_flag = proto_flag)
+            inter_face_gal_acc_ethnic = crossmodal_id(model, ethnic_face_gal_load, ethnic_peri_pr_load, device=device, face_model=face_model, peri_model=peri_model, gallery='face', proto_flag=proto_flag)
             inter_face_gal_acc_ethnic = np.around(inter_face_gal_acc_ethnic, 4)
             acc_face_gal.append(inter_face_gal_acc_ethnic)
 
             ethnic_peri_gal_load, ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/peri/'), 'test', 'periocular', aug='False')
             ethnic_face_pr_load, ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/face/'), 'test', 'face', aug='False')
-            inter_peri_gal_acc_ethnic = crossmodal_id(model, ethnic_face_pr_load, ethnic_peri_gal_load, device = device, face_model = face_model, peri_model = peri_model, gallery = 'peri', proto_flag = proto_flag)
+            inter_peri_gal_acc_ethnic = crossmodal_id(model, ethnic_face_pr_load, ethnic_peri_gal_load, device=device, face_model=face_model, peri_model=peri_model, gallery='peri', proto_flag=proto_flag)
             inter_peri_gal_acc_ethnic = np.around(inter_peri_gal_acc_ethnic, 4)
             acc_peri_gal.append(inter_peri_gal_acc_ethnic)
 
@@ -121,13 +121,13 @@ def cm_id_main(model, root_pth=config.evaluation['identification'], face_model =
                 # print(path_lst[int(probes[i])] + modal_root[0], path_lst[int(gallery)] + modal_root[1])
                 peri_probe_load, peri_dataset = data_loader.gen_data((probes + modal_root[0]), 'test', 'periocular', aug='False')
                 face_gal_load, face_dataset = data_loader.gen_data((gallery_path + modal_root[1]), 'test', 'face', aug='False')
-                cm_face_gal_acc = crossmodal_id(model, face_gal_load, peri_probe_load, device = device, proto_flag = False, face_model = face_model, peri_model = peri_model, gallery = 'face')
+                cm_face_gal_acc = crossmodal_id(model, face_gal_load, peri_probe_load, device=device, proto_flag=False, face_model=face_model, peri_model=peri_model, gallery='face')
                 cm_face_gal_acc = np.around(cm_face_gal_acc, 4)
                 acc_face_gal.append(cm_face_gal_acc)
 
                 peri_gal_load, peri_dataset = data_loader.gen_data((gallery_path + modal_root[0]), 'test', 'periocular', aug='False')
                 face_probe_load, face_dataset = data_loader.gen_data((probes + modal_root[1]), 'test', 'face', aug='False')
-                cm_peri_gal_acc = crossmodal_id(model, face_probe_load, peri_gal_load, device = device, proto_flag = False, face_model = face_model, peri_model = peri_model, gallery = 'peri')
+                cm_peri_gal_acc = crossmodal_id(model, face_probe_load, peri_gal_load, device=device, proto_flag=False, face_model=face_model, peri_model=peri_model, gallery='peri')
                 cm_peri_gal_acc = np.around(cm_peri_gal_acc, 4)
                 acc_peri_gal.append(cm_peri_gal_acc)
 
@@ -144,7 +144,7 @@ def cm_id_main(model, root_pth=config.evaluation['identification'], face_model =
 
 
 # Multimodal Identification (Main)
-def mm_id_main(model, root_pth='./data/', face_model = None, peri_model = None, mode = 'concat', proto_flag = False):
+def mm_id_main(model, root_pth='./data/', face_model=None, peri_model=None, mode='concat', device='cuda:0', proto_flag=False):
     for datasets in dset_list:
         root_drt = root_pth + datasets + '/**'
         modal_root = ['/peri/', '/face/']
@@ -160,7 +160,7 @@ def mm_id_main(model, root_pth='./data/', face_model = None, peri_model = None, 
             ethnic_peri_gal_data_load, ethnic_peri_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/peri/'), 'test', 'periocular', aug='False')            
             ethnic_peri_pr_data_load, ethnic_peri_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/peri/'), 'test', 'periocular', aug='False')        
             acc = multimodal_id(model, ethnic_face_gal_data_load, ethnic_peri_gal_data_load, ethnic_face_pr_data_load, ethnic_peri_pr_data_load, 
-                                    device = device, proto_flag = False, face_model = face_model, peri_model = peri_model, mode = mode)
+                                    device=device, proto_flag=False, face_model=face_model, peri_model=peri_model, mode=mode)
         else:
             # data loader and datasets
             for directs in glob.glob(root_drt):
@@ -180,7 +180,7 @@ def mm_id_main(model, root_pth='./data/', face_model = None, peri_model = None, 
                     peri_data_load_pr, peri_dataset_pr = data_loader.gen_data((path_lst[int(probes[i])] + modal_root[0]), 'test', 'periocular', aug='False')
                     
                     mm_test_acc = multimodal_id(model, face_data_load_gal, peri_data_load_gal, face_data_load_pr, peri_data_load_pr, 
-                                                            device = device, proto_flag = False, face_model = face_model, peri_model = peri_model, mode = mode)
+                                                            device=device, proto_flag=False, face_model=face_model, peri_model=peri_model, mode=mode)
                     mm_test_acc = np.around(mm_test_acc, 4)
                     acc.append(mm_test_acc)
                 #     print(i, mm_test_acc)
@@ -196,7 +196,7 @@ def mm_id_main(model, root_pth='./data/', face_model = None, peri_model = None, 
 
 
 # Intra-Modal Identification Function
-def intramodal_id(model, loader_gallery, loader_test, device = 'cuda:0', peri_flag = False, proto_flag = False):
+def intramodal_id(model, loader_gallery, loader_test, device='cuda:0', peri_flag=False, proto_flag=False):
     
     # ***** *****
     
@@ -207,14 +207,14 @@ def intramodal_id(model, loader_gallery, loader_test, device = 'cuda:0', peri_fl
     
     # Extract gallery features w.r.t. pre-learned model
     gallery_fea = torch.tensor([])
-    gallery_label = torch.tensor([], dtype = torch.int64)
+    gallery_label = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
         for batch_idx, (x, y) in enumerate(loader_gallery):
 
             x = x.to(device)
-            x = model(x, peri_flag = peri_flag)
+            x = model(x, peri_flag=peri_flag)
 
             gallery_fea = torch.cat((gallery_fea, x.detach().cpu()), 0)
             gallery_label = torch.cat((gallery_label, y))
@@ -232,14 +232,14 @@ def intramodal_id(model, loader_gallery, loader_test, device = 'cuda:0', peri_fl
     
     # Extract test features w.r.t. pre-learned model
     test_fea = torch.tensor([])
-    test_label = torch.tensor([], dtype = torch.int64)
+    test_label = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
         for batch_idx, (x, y) in enumerate(loader_test):
 
             x = x.to(device)
-            x = model(x, peri_flag = peri_flag)
+            x = model(x, peri_flag=peri_flag)
 
             test_fea = torch.cat((test_fea, x.detach().cpu()), 0)
             test_label = torch.cat((test_label, y))
@@ -256,7 +256,7 @@ def intramodal_id(model, loader_gallery, loader_test, device = 'cuda:0', peri_fl
     # ***** *****
     # prototyping for gallery
     if proto_flag is True:
-        gal_lbl_proto = torch.tensor([], dtype = torch.int64)
+        gal_lbl_proto = torch.tensor([], dtype=torch.int64)
         gal_fea_proto = torch.tensor([])
 
         # get unique labels
@@ -298,7 +298,7 @@ def intramodal_id(model, loader_gallery, loader_test, device = 'cuda:0', peri_fl
 
 
 # Cross-Modal Identification Function
-def crossmodal_id(model, face_loader, peri_loader, device = 'cuda:0', face_model = None, peri_model = None, gallery = 'face', proto_flag = False):
+def crossmodal_id(model, face_loader, peri_loader, device='cuda:0', face_model=None, peri_model=None, gallery='face', proto_flag=False):
     
     # ***** *****
     
@@ -309,7 +309,7 @@ def crossmodal_id(model, face_loader, peri_loader, device = 'cuda:0', face_model
 
     # Extract face features w.r.t. pre-learned model
     face_fea = torch.tensor([])
-    face_label = torch.tensor([], dtype = torch.int64)
+    face_label = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -318,7 +318,7 @@ def crossmodal_id(model, face_loader, peri_loader, device = 'cuda:0', face_model
             x = x.to(device)
             if not face_model is None:
                 face_model = face_model.eval().to(device)
-                x = face_model(x, peri_flag = False)
+                x = face_model(x, peri_flag=False)
             else:
                 x = model(x, peri_flag=False)
 
@@ -338,7 +338,7 @@ def crossmodal_id(model, face_loader, peri_loader, device = 'cuda:0', face_model
     
     # Extract periocular features w.r.t. pre-learned model
     peri_fea = torch.tensor([])
-    peri_label = torch.tensor([], dtype = torch.int64)
+    peri_label = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -393,7 +393,7 @@ def crossmodal_id(model, face_loader, peri_loader, device = 'cuda:0', face_model
 
 
 # Multimodal Identification Function
-def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, peri_loader_probe, device = 'cuda:0', proto_flag = False, face_model = None, peri_model = None, mode = 'concat'):
+def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, peri_loader_probe, device='cuda:0', proto_flag=False, face_model=None, peri_model=None, mode='concat'):
     
     # ***** *****
     
@@ -403,16 +403,16 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
     # ***** *****
 
     gal_fea = torch.tensor([])
-    gal_label = torch.tensor([], dtype = torch.int64)
+    gal_label = torch.tensor([], dtype=torch.int64)
     probe_fea = torch.tensor([])
-    probe_label = torch.tensor([], dtype = torch.int64)
+    probe_label = torch.tensor([], dtype=torch.int64)
 
     # ***** *****
 
     # GALLERY
     # Extract face features w.r.t. pre-learned model
     face_fea_gal = torch.tensor([])
-    face_label_gal = torch.tensor([], dtype = torch.int64)
+    face_label_gal = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -421,7 +421,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
             x = x.to(device)
             if not face_model is None:
                 face_model = face_model.eval().to(device)
-                x = face_model(x, peri_flag = False)
+                x = face_model(x, peri_flag=False)
             else:
                 x = model(x, peri_flag=False)
 
@@ -440,7 +440,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
     
     # Extract periocular features w.r.t. pre-learned model
     peri_fea_gal = torch.tensor([])
-    peri_label_gal = torch.tensor([], dtype = torch.int64)
+    peri_label_gal = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -469,7 +469,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
     # PROBE
     # Extract face features w.r.t. pre-learned model
     face_fea_probe = torch.tensor([])
-    face_label_probe = torch.tensor([], dtype = torch.int64)
+    face_label_probe = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -478,7 +478,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
             x = x.to(device)
             if not face_model is None:
                 face_model = face_model.eval().to(device)
-                x = face_model(x, peri_flag = False)
+                x = face_model(x, peri_flag=False)
             else:
                 x = model(x, peri_flag=False)
 
@@ -497,7 +497,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
     
     # Extract periocular features w.r.t. pre-learned model
     peri_fea_probe = torch.tensor([])
-    peri_label_probe = torch.tensor([], dtype = torch.int64)
+    peri_label_probe = torch.tensor([], dtype=torch.int64)
     
     with torch.no_grad():
         
@@ -528,7 +528,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
     if proto_flag is True:
         print("WITH Prototyping on periocular and face galleries.")
         # periocular
-        peri_lbl_proto = torch.tensor([], dtype = torch.int64)
+        peri_lbl_proto = torch.tensor([], dtype=torch.int64)
         peri_fea_proto = torch.tensor([])
 
         # get unique labels
@@ -553,7 +553,7 @@ def multimodal_id(model, face_loader_gal, peri_loader_gal, face_loader_probe, pe
         #### **** ####
 
         # face
-        face_lbl_proto = torch.tensor([], dtype = torch.int64)
+        face_lbl_proto = torch.tensor([], dtype=torch.int64)
         face_fea_proto = torch.tensor([])
 
         # get unique labels
@@ -662,29 +662,29 @@ if __name__ == '__main__':
     mm_mode = 'concat'
 
     load_model_path = './models/CB_Net/best_model/CB_Net.pth'
-    model = net.CB_Net(embedding_size = embd_dim, do_prob=0.0).eval().to(device)
-    model = load_model.load_pretrained_network(model, load_model_path, device = device)
+    model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    model = load_model.load_pretrained_network(model, load_model_path, device=device)
 
-    peri_id_dict = im_id_main(model, root_pth=config.evaluation['identification'], modal = 'periocular', peri_flag = True, device = device)
+    peri_id_dict = im_id_main(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, device=device)
     peri_id_dict = get_avg(peri_id_dict)
     peri_id_dict = copy.deepcopy(peri_id_dict)
     print('Average (Periocular):', peri_id_dict['avg'])
     print('Periocular:', peri_id_dict)    
 
-    face_id_dict = im_id_main(model, root_pth = config.evaluation['identification'], modal = 'face', peri_flag = False, device = device)
+    face_id_dict = im_id_main(model, root_pth=config.evaluation['identification'], modal='face', peri_flag=False, device=device)
     face_id_dict = get_avg(face_id_dict)
     face_id_dict = copy.deepcopy(face_id_dict)
     print('Average (Face):', face_id_dict['avg'])
     print('Face:', face_id_dict)    
 
-    cm_id_dict_f, cm_id_dict_p = cm_id_main(model, root_pth = config.evaluation['identification'], face_model = None, peri_model = None, device = device)
+    cm_id_dict_f, cm_id_dict_p = cm_id_main(model, root_pth=config.evaluation['identification'], face_model=None, peri_model=None, device=device)
     cm_id_dict_p, cm_id_dict_f = get_avg(cm_id_dict_p), get_avg(cm_id_dict_f)
     cm_id_dict_p = copy.deepcopy(cm_id_dict_p)
     cm_id_dict_f = copy.deepcopy(cm_id_dict_f)
     print('Average (Periocular-Face):', cm_id_dict_p['avg'], cm_id_dict_f['avg'])
     print('Cross-Modal (Periocular Gallery, Face Gallery):', cm_id_dict_p, cm_id_dict_f)    
 
-    mm_id_dict = mm_id_main(model, root_pth='./data/', face_model = None, peri_model = None, mode = 'concat')
+    mm_id_dict = mm_id_main(model, root_pth='./data/', face_model=None, peri_model=None, mode='concat')
     mm_id_dict = get_avg(cm_id_dict_f)
     print('Average (Periocular+Face):', mm_id_dict['avg'])
     print('Multimodal (Face):', mm_id_dict)    

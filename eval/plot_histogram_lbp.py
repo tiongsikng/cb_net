@@ -36,7 +36,7 @@ def dprime(nomatch, match):
 
     return round(dprime, 4)
 
-def plot_hist(inter_class, intra_class, title, file__name, type = 'hist'):
+def plot_hist(inter_class, intra_class, title, file__name, type='hist'):
     n_bins = 512
     plt.rcParams['font.family'] = 'serif'
     plt.rcParams['font.serif'] = ['Times New Roman'] + plt.rcParams['font.serif']
@@ -51,14 +51,14 @@ def plot_hist(inter_class, intra_class, title, file__name, type = 'hist'):
         fig, ax1 = plt.subplots()
         # ax1.hist(dist1, alpha=0.8, label='Inter-Subject', color='#1f77b4', bins=n_bins)
         sns.kdeplot(dist1, fill=True, alpha=0.5, label='Impostor', color='#1f77b4', ax=ax1) # 0.5
-        ax1.tick_params(axis ='y', labelcolor = '#1f77b4')
+        ax1.tick_params(axis ='y', labelcolor='#1f77b4')
         ax1.axes.get_xaxis().set_visible(False)
         ax1.axes.get_yaxis().set_visible(False)
 
         ax2 = ax1.twinx()
         # ax2.hist(dist2, alpha=0.8, label='Intra-Subject', color='#ff7f0e', bins=n_bins)
         sns.kdeplot(dist2, fill=True, alpha=0.5, label='Genuine', color='#ff7f0e', ax=ax2) # 0.5
-        ax2.tick_params(axis ='y', labelcolor = '#ff7f0e')
+        ax2.tick_params(axis ='y', labelcolor='#ff7f0e')
         ax2.axes.get_xaxis().set_visible(False)
         ax2.axes.get_yaxis().set_visible(False)
 
@@ -71,7 +71,7 @@ def plot_hist(inter_class, intra_class, title, file__name, type = 'hist'):
         sns.kdeplot(dist1, label='Inter-Subject', color='#1f77b4')
         sns.kdeplot(dist2, label='Intra-Subject', color='#ff7f0e')
     # plt.legend()
-    plt.title("$d'$ = " + str(dprime(dist1, dist2)))
+    plt.title("$d'$=" + str(dprime(dist1, dist2)))
     plt.savefig('./graphs/histogram/' + str(file__name) + '.svg', bbox_inches='tight')
 
 
@@ -132,7 +132,7 @@ def extract(model, data_path, modal):
     else:
         peri_flag = False
     data_load, data_set = data_loader.gen_data(data_path, 'test', type=modal, aug='False')
-    feat, labl = train.feature_extractor(model, data_load, device = device, peri_flag = peri_flag) 
+    feat, labl = train.feature_extractor(model, data_load, device=device, peri_flag=peri_flag) 
 
     return feat, labl, data_load, data_set
 
@@ -159,4 +159,4 @@ if __name__ == '__main__':
     for lst_ in dst_lst:
         torch.save(lst_, ('./data/histogram/' + str(utils.retrieve_name(lst_)) + '.pt'))
 
-    plot_hist(lbp_inter_m_inter_c, lbp_inter_m_intra_c, 'LBP', 'LBP', type = 'hist')
+    plot_hist(lbp_inter_m_inter_c, lbp_inter_m_intra_c, 'LBP', 'LBP', type='hist')

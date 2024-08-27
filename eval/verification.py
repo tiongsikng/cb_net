@@ -117,7 +117,7 @@ class dataset(data.Dataset):
 
 
 # Verification (Face and Periocular)
-def im_verify(model, emb_size = 512, root_drt='./data', peri_flag=True, device='cuda:0'):
+def im_verify(model, emb_size=512, root_drt='./data', peri_flag=True, device='cuda:0'):
     if peri_flag is True:
         modal = 'periocular'
     else:
@@ -127,9 +127,9 @@ def im_verify(model, emb_size = 512, root_drt='./data', peri_flag=True, device='
         embedding_size = emb_size       
         
         if dset_name == 'ethnic':
-            dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt = root_drt, modal=modal)
+            dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt=root_drt, modal=modal)
         else:
-            dset = dataset(dset=dset_name, dset_type='gallery', root_drt = root_drt, modal=modal)
+            dset = dataset(dset=dset_name, dset_type='gallery', root_drt=root_drt, modal=modal)
 
         dloader = torch.utils.data.DataLoader(dset, batch_size=batch_size, num_workers=4)
         nof_dset = len(dset)
@@ -181,16 +181,16 @@ def im_verify(model, emb_size = 512, root_drt='./data', peri_flag=True, device='
 
 
 # Cross-Modal Verification
-def cm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', device='cuda:0'):
+def cm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', device='cuda:0'):
     for dset_name in dset_list:
         embedding_size = emb_size       
         
         if dset_name == 'ethnic':
-            peri_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt = root_drt, modal='periocular')
-            face_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt = root_drt, modal='face')
+            peri_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt=root_drt, modal='periocular')
+            face_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt=root_drt, modal='face')
         else:
-            peri_dset = dataset(dset=dset_name, dset_type='gallery', root_drt = root_drt, modal='periocular')
-            face_dset = dataset(dset=dset_name, dset_type='gallery', root_drt = root_drt, modal='face')
+            peri_dset = dataset(dset=dset_name, dset_type='gallery', root_drt=root_drt, modal='periocular')
+            face_dset = dataset(dset=dset_name, dset_type='gallery', root_drt=root_drt, modal='face')
 
         peri_dloader = torch.utils.data.DataLoader(peri_dset, batch_size=batch_size, num_workers=4)
         nof_peri_dset = len(peri_dset)
@@ -215,9 +215,9 @@ def cm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', 
                 peri_onehot = peri_onehot.to(device)
 
                 if not peri_model is None:
-                    peri_feature = peri_model(peri_ocular, peri_flag = True)
+                    peri_feature = peri_model(peri_ocular, peri_flag=True)
                 else:
-                    peri_feature = model(peri_ocular, peri_flag = True)
+                    peri_feature = model(peri_ocular, peri_flag=True)
 
                 peri_embedding_mat[i*batch_size:i*batch_size+nof_peri_img, :] = peri_feature.detach().clone()                
                 peri_label_mat[i*batch_size:i*batch_size+nof_peri_img, :] = peri_onehot
@@ -229,9 +229,9 @@ def cm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', 
                 face_onehot = face_onehot.to(device)
 
                 if not face_model is None:
-                    face_feature = face_model(face_ocular, peri_flag = False)
+                    face_feature = face_model(face_ocular, peri_flag=False)
                 else:
-                    face_feature = model(face_ocular, peri_flag = False)
+                    face_feature = model(face_ocular, peri_flag=False)
 
                 face_embedding_mat[i*batch_size:i*batch_size+nof_face_img, :] = face_feature.detach().clone()
                 face_label_mat[i*batch_size:i*batch_size+nof_face_img, :] = face_onehot           
@@ -270,16 +270,16 @@ def cm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', 
 
 
 # Multimodal Verification
-def mm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', mode = 'concat', device='cuda:0'):
+def mm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', mode='concat', device='cuda:0'):
     for dset_name in dset_list:
         embedding_size = emb_size       
         
         if dset_name == 'ethnic':
-            peri_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt = root_drt, modal='periocular')
-            face_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt = root_drt, modal='face')
+            peri_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt=root_drt, modal='periocular')
+            face_dset = dataset(dset=dset_name, dset_type='Verification/gallery', root_drt=root_drt, modal='face')
         else:
-            peri_dset = dataset(dset=dset_name, dset_type='gallery', root_drt = root_drt, modal='periocular')
-            face_dset = dataset(dset=dset_name, dset_type='gallery', root_drt = root_drt, modal='face')
+            peri_dset = dataset(dset=dset_name, dset_type='gallery', root_drt=root_drt, modal='periocular')
+            face_dset = dataset(dset=dset_name, dset_type='gallery', root_drt=root_drt, modal='face')
 
         peri_dloader = torch.utils.data.DataLoader(peri_dset, batch_size=batch_size, num_workers=4)
         nof_peri_dset = len(peri_dset)
@@ -305,9 +305,9 @@ def mm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', 
                 peri_onehot = peri_onehot.to(device)
 
                 if not peri_model is None:
-                    peri_feature = peri_model(peri_ocular, peri_flag = True)
+                    peri_feature = peri_model(peri_ocular, peri_flag=True)
                 else:
-                    peri_feature = model(peri_ocular, peri_flag = True)
+                    peri_feature = model(peri_ocular, peri_flag=True)
 
                 peri_embedding_mat[i*batch_size:i*batch_size+nof_peri_img, :] = peri_feature.detach().clone()                
                 peri_label_mat[i*batch_size:i*batch_size+nof_peri_img, :] = peri_onehot
@@ -319,9 +319,9 @@ def mm_verify(model, face_model, peri_model, emb_size = 512, root_drt='./data', 
                 face_onehot = face_onehot.to(device)
 
                 if not face_model is None:
-                    face_feature = face_model(face_ocular, peri_flag = False)
+                    face_feature = face_model(face_ocular, peri_flag=False)
                 else:
-                    face_feature = model(face_ocular, peri_flag = False)
+                    face_feature = model(face_ocular, peri_flag=False)
 
                 face_embedding_mat[i*batch_size:i*batch_size+nof_face_img, :] = face_feature.detach().clone()
                 face_label_mat[i*batch_size:i*batch_size+nof_face_img, :] = face_onehot           
@@ -381,28 +381,28 @@ if __name__ == '__main__':
     mm_mode = 'concat'
 
     load_model_path = './models/CB_Net/best_model/CB_Net.pth'
-    model = net.CB_Net(embedding_size = embd_dim, do_prob=0.0).eval().to(device)
-    model = load_model.load_pretrained_network(model, load_model_path, device = device)
+    model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    model = load_model.load_pretrained_network(model, load_model_path, device=device)
 
-    peri_eer_dict = im_verify(model, emb_size = embd_dim, peri_flag = True, root_drt = config.evaluation['verification'], device = device)
+    peri_eer_dict = im_verify(model, emb_size=embd_dim, peri_flag=True, root_drt=config.evaluation['verification'], device=device)
     peri_eer_dict = get_avg(peri_eer_dict)
     peri_eer_dict = copy.deepcopy(peri_eer_dict)
     print('Average (Periocular):', peri_eer_dict['avg'])
     print('Periocular:', peri_eer_dict)    
 
-    face_eer_dict = im_verify(model, emb_size = embd_dim, peri_flag = False, root_drt = config.evaluation['verification'], device = device)
+    face_eer_dict = im_verify(model, emb_size=embd_dim, peri_flag=False, root_drt=config.evaluation['verification'], device=device)
     face_eer_dict = get_avg(face_eer_dict)    
     face_eer_dict = copy.deepcopy(face_eer_dict)    
     print('Average (Face):', face_eer_dict['avg'])
     print('Face:', face_eer_dict)    
 
-    cm_eer_dict = cm_verify(model, face_model = None, peri_model = None, emb_size = embd_dim, root_drt = config.evaluation['verification'], device = device)
+    cm_eer_dict = cm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt=config.evaluation['verification'], device=device)
     cm_eer_dict = get_avg(cm_eer_dict) 
     cm_eer_dict = copy.deepcopy(cm_eer_dict)      
     print('Average (Periocular-Face):', cm_eer_dict['avg']) 
     print('Cross-Modal:', cm_eer_dict)    
 
-    mm_eer_dict = mm_verify(model, face_model = None, peri_model = None, emb_size = embd_dim, mode = mm_mode, root_drt = config.evaluation['verification'], device = device)
+    mm_eer_dict = mm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, mode=mm_mode, root_drt=config.evaluation['verification'], device=device)
     mm_eer_dict = get_avg(mm_eer_dict)    
     mm_eer_dict = copy.deepcopy(mm_eer_dict)    
     print('Average (Periocular+Face):', mm_eer_dict['avg'])

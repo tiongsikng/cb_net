@@ -48,16 +48,16 @@ def get_avg(dict_list):
     return dict_list
 
 
-def feature_extractor(model, data_loader, device = 'cuda:0', peri_flag = False, proto_flag = False):    
+def feature_extractor(model, data_loader, device='cuda:0', peri_flag=False, proto_flag=False):    
     emb = torch.tensor([])
-    lbl = torch.tensor([], dtype = torch.int64)
+    lbl = torch.tensor([], dtype=torch.int64)
 
     model = model.eval().to(device)
     
     with torch.no_grad():        
         for batch_idx, (x, y) in enumerate(data_loader):
             x = x.to(device)
-            x = model(x, peri_flag = peri_flag)
+            x = model(x, peri_flag=peri_flag)
 
             emb = torch.cat((emb, x.detach().cpu()), 0)
             lbl = torch.cat((lbl, y))
@@ -66,7 +66,7 @@ def feature_extractor(model, data_loader, device = 'cuda:0', peri_flag = False, 
             time.sleep(0.0001)
 
     if proto_flag is True:
-        lbl_proto = torch.tensor([], dtype = torch.int64)
+        lbl_proto = torch.tensor([], dtype=torch.int64)
         emb_proto = torch.tensor([])
 
         # get unique labels
@@ -178,7 +178,7 @@ def calculate_cm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label
     return x_range, cmc.numpy()
 
 
-def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label_peri, probe_label_peri, gallery_embedding_face, probe_embedding_face, gallery_label_face, probe_label_face, last_rank=10, mode = 'concat'):
+def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label_peri, probe_label_peri, gallery_embedding_face, probe_embedding_face, gallery_label_face, probe_label_face, last_rank=10, mode='concat'):
     gallery_embedding_peri = gallery_embedding_peri.type(torch.float32)
     probe_embedding_peri = probe_embedding_peri.type(torch.float32)
     gallery_label_peri = gallery_label_peri.type(torch.float32)
@@ -257,7 +257,7 @@ def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label
     return x_range, cmc.numpy()
 
 
-def cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag = True, device = 'cuda:0', rank=10):
+def cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag=True, device='cuda:0', rank=10):
     total_cmc = np.empty((0, rank), int) 
     for datasets in dset_list:
         cmc_lst = np.empty((0, rank), int)
@@ -290,8 +290,8 @@ def cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag = Tru
         if datasets == 'ethnic':
             ethnic_gal_data_load, ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/' + modal[:4] + '/'), 'test', type=modal, aug='False')
             ethnic_pr_data_load, ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/' + modal[:4] + '/'), 'test', type=modal, aug='False')
-            ethnic_fea_gal, ethnic_lbl_gal = feature_extractor(model, ethnic_gal_data_load, device = device, peri_flag = peri_flag)
-            ethnic_fea_pr, ethnic_lbl_pr = feature_extractor(model, ethnic_pr_data_load, device = device, peri_flag = peri_flag)            
+            ethnic_fea_gal, ethnic_lbl_gal = feature_extractor(model, ethnic_gal_data_load, device=device, peri_flag=peri_flag)
+            ethnic_fea_pr, ethnic_lbl_pr = feature_extractor(model, ethnic_pr_data_load, device=device, peri_flag=peri_flag)            
             ethnic_lbl_pr, ethnic_lbl_gal = F.one_hot(ethnic_lbl_pr), F.one_hot(ethnic_lbl_gal)
             rng, cmc = calculate_cmc(ethnic_fea_gal, ethnic_fea_pr, ethnic_lbl_gal, ethnic_lbl_pr, last_rank=rank)
 
@@ -300,8 +300,8 @@ def cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag = Tru
             kf = KFold(n_splits=len(data_loaders))
             for probes, gallery in kf.split(data_loaders):            
                 for i in range(len(probes)):
-                    peri_fea_gal, peri_lbl_gal = feature_extractor(model, data_loaders[int(gallery)], device = device, peri_flag = peri_flag)
-                    peri_fea_pr, peri_lbl_pr = feature_extractor(model, data_loaders[int(probes[i])], device = device, peri_flag = peri_flag)
+                    peri_fea_gal, peri_lbl_gal = feature_extractor(model, data_loaders[int(gallery)], device=device, peri_flag=peri_flag)
+                    peri_fea_pr, peri_lbl_pr = feature_extractor(model, data_loaders[int(probes[i])], device=device, peri_flag=peri_flag)
                     peri_lbl_pr, peri_lbl_gal = F.one_hot(peri_lbl_pr), F.one_hot(peri_lbl_gal)
                     rng, cmc = calculate_cmc(peri_fea_gal, peri_fea_pr, peri_lbl_gal, peri_lbl_pr, last_rank=rank)
                     cmc_lst = np.append(cmc_lst, np.array([cmc]), axis=0)                
@@ -311,12 +311,12 @@ def cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag = Tru
         # print(cmc_dict)
     for ds in cmc_dict:
         total_cmc = np.append(total_cmc, np.array([cmc_dict[ds]]), axis=0)
-    cmc_avg_dict['avg'] = np.mean(total_cmc, axis = 0)
+    cmc_avg_dict['avg'] = np.mean(total_cmc, axis=0)
 
     return cmc_dict, cmc_avg_dict
 
 
-def cm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, device = 'cuda:0', rank=10):
+def cm_cmc_extractor(model, root_pth='./data/', facenet=None, perinet=None, device='cuda:0', rank=10):
     if facenet is None and perinet is None:
         facenet = model
         perinet = model
@@ -351,14 +351,14 @@ def cm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
         if datasets == 'ethnic':
             p_ethnic_gal_data_load, p_ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/peri/'), 'test', type='periocular', aug='False')
             p_ethnic_pr_data_load, p_ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/peri/'), 'test', type='periocular', aug='False')
-            p_ethnic_fea_gal, p_ethnic_lbl_gal = feature_extractor(perinet, p_ethnic_gal_data_load, device = device, peri_flag = True)
-            p_ethnic_fea_pr, p_ethnic_lbl_pr = feature_extractor(perinet, p_ethnic_pr_data_load, device = device, peri_flag = True)            
+            p_ethnic_fea_gal, p_ethnic_lbl_gal = feature_extractor(perinet, p_ethnic_gal_data_load, device=device, peri_flag=True)
+            p_ethnic_fea_pr, p_ethnic_lbl_pr = feature_extractor(perinet, p_ethnic_pr_data_load, device=device, peri_flag=True)            
             p_ethnic_lbl_pr, p_ethnic_lbl_gal = F.one_hot(p_ethnic_lbl_pr), F.one_hot(p_ethnic_lbl_gal)
 
             f_ethnic_gal_data_load, f_ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/face/'), 'test', type='face', aug='False')
             f_ethnic_pr_data_load, f_ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/face/'), 'test', type='face', aug='False')
-            f_ethnic_fea_gal, f_ethnic_lbl_gal = feature_extractor(facenet, f_ethnic_gal_data_load, device = device, peri_flag = False)
-            f_ethnic_fea_pr, f_ethnic_lbl_pr = feature_extractor(facenet, f_ethnic_pr_data_load, device = device, peri_flag = False)            
+            f_ethnic_fea_gal, f_ethnic_lbl_gal = feature_extractor(facenet, f_ethnic_gal_data_load, device=device, peri_flag=False)
+            f_ethnic_fea_pr, f_ethnic_lbl_pr = feature_extractor(facenet, f_ethnic_pr_data_load, device=device, peri_flag=False)            
             f_ethnic_lbl_pr, f_ethnic_lbl_gal = F.one_hot(f_ethnic_lbl_pr), F.one_hot(f_ethnic_lbl_gal)
 
             rng_f, cmc_f = calculate_cmc(f_ethnic_fea_gal, p_ethnic_fea_pr, f_ethnic_lbl_gal, p_ethnic_lbl_pr, last_rank=rank)
@@ -366,16 +366,16 @@ def cm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
 
         else:            
             for probes in peri_data_loaders:                
-                face_fea_gal, face_lbl_gal = feature_extractor(perinet, face_data_load_gal, device = device, peri_flag = False)
-                peri_fea_pr, peri_lbl_pr = feature_extractor(perinet, probes, device = device, peri_flag = True)
+                face_fea_gal, face_lbl_gal = feature_extractor(perinet, face_data_load_gal, device=device, peri_flag=False)
+                peri_fea_pr, peri_lbl_pr = feature_extractor(perinet, probes, device=device, peri_flag=True)
                 peri_lbl_pr, face_lbl_gal = F.one_hot(peri_lbl_pr), F.one_hot(face_lbl_gal)
 
                 rng_f, cmc_f = calculate_cmc(face_fea_gal, peri_fea_pr, face_lbl_gal, peri_lbl_pr, last_rank=rank)
                 cmc_lst_f = np.append(cmc_lst_f, np.array([cmc_f]), axis=0)
 
             for probes in face_data_loaders:                
-                peri_fea_gal, peri_lbl_gal = feature_extractor(perinet, peri_data_load_gal, device = device, peri_flag = True)
-                face_fea_pr, face_lbl_pr = feature_extractor(perinet, probes, device = device, peri_flag = False)
+                peri_fea_gal, peri_lbl_gal = feature_extractor(perinet, peri_data_load_gal, device=device, peri_flag=True)
+                face_fea_pr, face_lbl_pr = feature_extractor(perinet, probes, device=device, peri_flag=False)
                 face_lbl_pr, peri_lbl_gal = F.one_hot(face_lbl_pr), F.one_hot(peri_lbl_gal)
 
                 rng_p, cmc_p = calculate_cmc(peri_fea_gal, face_fea_pr, peri_lbl_gal, face_lbl_pr, last_rank=rank)
@@ -392,16 +392,16 @@ def cm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
 
     for ds in cm_cmc_dict_f:
         total_cmc_f = np.append(total_cmc_f, np.array([cm_cmc_dict_f[ds]]), axis=0)
-    cm_cmc_avg_dict_f['avg'] = np.mean(total_cmc_f, axis = 0)
+    cm_cmc_avg_dict_f['avg'] = np.mean(total_cmc_f, axis=0)
 
     for ds in cm_cmc_dict_p:
         total_cmc_p = np.append(total_cmc_p, np.array([cm_cmc_dict_p[ds]]), axis=0)
-    cm_cmc_avg_dict_p['avg'] = np.mean(total_cmc_p, axis = 0)
+    cm_cmc_avg_dict_p['avg'] = np.mean(total_cmc_p, axis=0)
 
     return cm_cmc_dict_f, cm_cmc_avg_dict_f, cm_cmc_dict_p, cm_cmc_avg_dict_p
 
 
-def mm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, device = 'cuda:0', rank=10, mode = 'concat'):
+def mm_cmc_extractor(model, root_pth='./data/', facenet=None, perinet=None, device='cuda:0', rank=10, mode='concat'):
     if facenet is None and perinet is None:
         facenet = model
         perinet = model
@@ -432,14 +432,14 @@ def mm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
 
             p_ethnic_gal_data_load, p_ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/peri/'), 'test', type='periocular', aug='False')
             p_ethnic_pr_data_load, p_ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/peri/'), 'test', type='periocular', aug='False')
-            p_ethnic_fea_gal, p_ethnic_lbl_gal = feature_extractor(perinet, p_ethnic_gal_data_load, device = device, peri_flag = True)
-            p_ethnic_fea_pr, p_ethnic_lbl_pr = feature_extractor(perinet, p_ethnic_pr_data_load, device = device, peri_flag = True)            
+            p_ethnic_fea_gal, p_ethnic_lbl_gal = feature_extractor(perinet, p_ethnic_gal_data_load, device=device, peri_flag=True)
+            p_ethnic_fea_pr, p_ethnic_lbl_pr = feature_extractor(perinet, p_ethnic_pr_data_load, device=device, peri_flag=True)            
             p_ethnic_lbl_pr, p_ethnic_lbl_gal = F.one_hot(p_ethnic_lbl_pr), F.one_hot(p_ethnic_lbl_gal)
 
             f_ethnic_gal_data_load, f_ethnic_gal_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/gallery/face/'), 'test', type='face', aug='False')
             f_ethnic_pr_data_load, f_ethnic_pr_data_set = data_loader.gen_data((root_pth + 'ethnic/Recognition/probe/face/'), 'test', type='face', aug='False')
-            f_ethnic_fea_gal, f_ethnic_lbl_gal = feature_extractor(facenet, f_ethnic_gal_data_load, device = device, peri_flag = False)
-            f_ethnic_fea_pr, f_ethnic_lbl_pr = feature_extractor(facenet, f_ethnic_pr_data_load, device = device, peri_flag = False)            
+            f_ethnic_fea_gal, f_ethnic_lbl_gal = feature_extractor(facenet, f_ethnic_gal_data_load, device=device, peri_flag=False)
+            f_ethnic_fea_pr, f_ethnic_lbl_pr = feature_extractor(facenet, f_ethnic_pr_data_load, device=device, peri_flag=False)            
             f_ethnic_lbl_pr, f_ethnic_lbl_gal = F.one_hot(f_ethnic_lbl_pr), F.one_hot(f_ethnic_lbl_gal)
 
             rng, cmc = calculate_mm_cmc(p_ethnic_fea_gal, p_ethnic_fea_pr, p_ethnic_lbl_gal, p_ethnic_lbl_pr, f_ethnic_fea_gal, f_ethnic_fea_pr, f_ethnic_lbl_gal, f_ethnic_lbl_pr, 
@@ -452,15 +452,15 @@ def mm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
             kf = KFold(n_splits=len(peri_data_loaders))
             for probes, gallery in kf.split(peri_data_loaders):                
                 for i in range(len(probes)):
-                    peri_fea_gal, peri_lbl_gal = feature_extractor(perinet, peri_data_loaders[int(gallery)], device = device, peri_flag = True)
-                    peri_fea_pr, peri_lbl_pr = feature_extractor(perinet, peri_data_loaders[probes[i]], device = device, peri_flag = True)
+                    peri_fea_gal, peri_lbl_gal = feature_extractor(perinet, peri_data_loaders[int(gallery)], device=device, peri_flag=True)
+                    peri_fea_pr, peri_lbl_pr = feature_extractor(perinet, peri_data_loaders[probes[i]], device=device, peri_flag=True)
                     peri_lbl_pr, peri_lbl_gal = F.one_hot(peri_lbl_pr), F.one_hot(peri_lbl_gal)
 
-                    face_fea_gal, face_lbl_gal = feature_extractor(facenet, face_data_loaders[int(gallery)], device = device, peri_flag = False)
-                    face_fea_pr, face_lbl_pr = feature_extractor(facenet, face_data_loaders[probes[i]], device = device, peri_flag = False)
+                    face_fea_gal, face_lbl_gal = feature_extractor(facenet, face_data_loaders[int(gallery)], device=device, peri_flag=False)
+                    face_fea_pr, face_lbl_pr = feature_extractor(facenet, face_data_loaders[probes[i]], device=device, peri_flag=False)
                     face_lbl_pr, face_lbl_gal = F.one_hot(face_lbl_pr), F.one_hot(face_lbl_gal)
 
-                    rng, cmc = calculate_mm_cmc(peri_fea_gal, peri_fea_pr, peri_lbl_gal, peri_lbl_pr, face_fea_gal, face_fea_pr, face_lbl_gal, face_lbl_pr, last_rank=rank, mode = mode)
+                    rng, cmc = calculate_mm_cmc(peri_fea_gal, peri_fea_pr, peri_lbl_gal, peri_lbl_pr, face_fea_gal, face_fea_pr, face_lbl_gal, face_lbl_pr, last_rank=rank, mode=mode)
                     cmc_lst = np.append(cmc_lst, np.array([cmc]), axis=0)
                 
             cmc = np.mean(cmc_lst, axis=0)
@@ -470,8 +470,8 @@ def mm_cmc_extractor(model, root_pth='./data/', facenet = None, perinet = None, 
         # print(cmc_dict)
     for ds in mm_cmc_dict:
         total_cmc = np.append(total_cmc, np.array([mm_cmc_dict[ds]]), axis=0)
-    # cmc_dict['avg'] = np.mean(total_cmc, axis = 0)
-    mm_cmc_avg_dict['avg'] = np.mean(total_cmc, axis = 0)
+    # cmc_dict['avg'] = np.mean(total_cmc, axis=0)
+    mm_cmc_avg_dict['avg'] = np.mean(total_cmc, axis=0)
 
     return mm_cmc_dict, mm_cmc_avg_dict
 
@@ -485,10 +485,10 @@ if __name__ == '__main__':
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     load_model_path = './models/CB_Net/best_model/CB_Net.pth'
-    model = net.CB_Net(embedding_size = embd_dim, do_prob=0.0).eval().to(device)
-    model = load_model.load_pretrained_network(model, load_model_path, device = device)
+    model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    model = load_model.load_pretrained_network(model, load_model_path, device=device)
 
-    peri_cmc_dict, peri_avg_dict = cmc_extractor(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, device = device, rank=rank)
+    peri_cmc_dict, peri_avg_dict = cmc_extractor(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, device=device, rank=rank)
     peri_cmc_dict = copy.deepcopy(peri_cmc_dict)
     peri_avg_dict = copy.deepcopy(peri_avg_dict)    
     torch.save(peri_cmc_dict, './data/cmc/' + str(method) + '/peri/peri_cmc_dict.pt')
@@ -496,7 +496,7 @@ if __name__ == '__main__':
     print('Average (Periocular): \n', peri_avg_dict) 
     print('Periocular: \n', peri_cmc_dict)
 
-    face_cmc_dict, face_avg_dict = cmc_extractor(model, root_pth=config.evaluation['identification'], modal='face', peri_flag = False, device = device, rank=rank)
+    face_cmc_dict, face_avg_dict = cmc_extractor(model, root_pth=config.evaluation['identification'], modal='face', peri_flag=False, device=device, rank=rank)
     face_cmc_dict = copy.deepcopy(face_cmc_dict)
     face_avg_dict = copy.deepcopy(face_avg_dict)    
     torch.save(face_cmc_dict, './data/cmc/' + str(method) + '/face/face_cmc_dict.pt') 
@@ -504,7 +504,7 @@ if __name__ == '__main__':
     print('Average (Face): \n', face_cmc_dict) 
     print('Face: \n', face_cmc_dict)    
 
-    cm_cmc_dict_f, cm_avg_dict_f, cm_cmc_dict_p, cm_avg_dict_p = cm_cmc_extractor(model, facenet = None, perinet = None, root_pth=config.evaluation['identification'], device = device, rank=rank)
+    cm_cmc_dict_f, cm_avg_dict_f, cm_cmc_dict_p, cm_avg_dict_p = cm_cmc_extractor(model, facenet=None, perinet=None, root_pth=config.evaluation['identification'], device=device, rank=rank)
     cm_cmc_dict_f = get_avg(cm_cmc_dict_f)
     cm_cmc_dict_p = get_avg(cm_cmc_dict_p)
     cm_cmc_dict_f = copy.deepcopy(cm_cmc_dict_f)
@@ -518,7 +518,7 @@ if __name__ == '__main__':
     print('Average (Periocular-Face): \n', cm_avg_dict_p, cm_avg_dict_f) 
     print('Cross-Modal: \n', cm_cmc_dict_f, cm_cmc_dict_p)
 
-    mm_cmc_dict, mm_avg_dict = mm_cmc_extractor(model, facenet = None, perinet = None, root_pth=config.evaluation['identification'], device = device, rank=rank, mode=mm_mode)
+    mm_cmc_dict, mm_avg_dict = mm_cmc_extractor(model, facenet=None, perinet=None, root_pth=config.evaluation['identification'], device=device, rank=rank, mode=mm_mode)
     mm_cmc_dict = copy.deepcopy(mm_cmc_dict)
     mm_avg_dict = copy.deepcopy(mm_avg_dict) 
     torch.save(mm_cmc_dict, './data/cmc/' + str(method) + '/mm/mm_cmc_dict_' + str(mm_mode) + '.pt')

@@ -45,34 +45,8 @@ class Linear_block(Module):
         x = self.bn(x)
         return x
 
-class GAP_block(Module):
-    def __init__(self, out_c, kernel=(1, 1)):
-        super(GAP_block, self).__init__()
-        self.avgpool = AdaptiveAvgPool2d(output_size=kernel)    
-        self.bn = BatchNorm2d(out_c)    
-    def forward(self, x):
-        x = self.avgpool(x)
-        x = self.bn(x)
-        return x
-
-class Shared_Linear_block(Module):
-    def __init__(self, in_c, out_c, kernel=(1, 1), stride=(1, 1), padding=(0, 0), groups=1):
-        super(Shared_Linear_block, self).__init__()
-        self.conv = Conv2d(in_c, out_channels=out_c, kernel_size=kernel, groups=groups, stride=stride, padding=padding, bias=False)
-        self.conv_peri = Conv2d(in_c, out_channels=out_c, kernel_size=(3, 7), groups=groups, stride=stride, padding=padding, bias=False)
-        self.avgpool = AdaptiveAvgPool2d(output_size=(1))
-        self.bn = BatchNorm2d(out_c)
-    def forward(self, x, gap_flag = False):
-        if gap_flag is False:
-            x = self.conv(x)
-        else:
-            x = self.avgpool(x)
-            # x = self.conv_peri(x)
-        x = self.bn(x)
-        return x
-
 class Depth_Wise(Module):
-     def __init__(self, in_c, out_c, residual = False, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=1):
+     def __init__(self, in_c, out_c, residual=False, kernel=(3, 3), stride=(2, 2), padding=(1, 1), groups=1):
         super(Depth_Wise, self).__init__()
         self.conv = Conv_block(in_c, out_c=groups, kernel=(1, 1), padding=(0, 0), stride=(1, 1))
         self.conv_dw = Conv_block(groups, groups, groups=groups, kernel=kernel, padding=padding, stride=stride)
@@ -103,7 +77,7 @@ class Residual(Module):
 # ***
 
 class MobileFaceNet(Module):
-    def __init__(self, embedding_size = 512, out_h = 7, out_w = 7, do_prob = 0.0, gap_flag=False):
+    def __init__(self, embedding_size=512, out_h=7, out_w=7, do_prob=0.0, gap_flag=False):
         super(MobileFaceNet, self).__init__()
         self.embedding_size = embedding_size
         self.gap_flag = gap_flag
@@ -122,7 +96,7 @@ class MobileFaceNet(Module):
         self.linear = Linear(512, embedding_size, bias=False)
         self.bn = BatchNorm1d(embedding_size)
     
-    def forward(self, x, peri_flag = False):
+    def forward(self, x, peri_flag=False):
         out = self.conv1(x)
         out = self.conv2_dw(out)
         out = self.conv_23(out)

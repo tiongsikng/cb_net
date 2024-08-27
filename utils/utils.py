@@ -108,7 +108,7 @@ import torch
 
 # ***
 
-def estimate_mi( x_out, x_tf_out, lamb = 1.0, eps = sys.float_info.epsilon ):
+def estimate_mi( x_out, x_tf_out, lamb=1.0, eps=sys.float_info.epsilon ):
 
     # ***
     

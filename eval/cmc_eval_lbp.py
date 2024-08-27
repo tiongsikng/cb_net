@@ -78,7 +78,7 @@ def preprocess_img(imagePath, type_root):
 
     return reduced # , hist     
 
-def read_images(type_root, root = None):
+def read_images(type_root, root=None):
     features = torch.Tensor([])
     label_nms = []
 
@@ -140,7 +140,7 @@ def calculate_cmc(gallery_embedding, probe_embedding, gallery_label, probe_label
 
     return x_range, cmc.numpy()
 
-def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label_peri, probe_label_peri, gallery_embedding_face, probe_embedding_face, gallery_label_face, probe_label_face, last_rank=10, mode = 'concat'):
+def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label_peri, probe_label_peri, gallery_embedding_face, probe_embedding_face, gallery_label_face, probe_label_face, last_rank=10, mode='concat'):
     gallery_embedding_peri = gallery_embedding_peri.type(torch.float32)
     probe_embedding_peri = probe_embedding_peri.type(torch.float32)
     gallery_label_peri = gallery_label_peri.type(torch.float32)
@@ -218,7 +218,7 @@ def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label
 
     return x_range, cmc.numpy()
 
-def cmc_extractor(root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, rank=10):
+def cmc_extractor(root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, rank=10):
     total_cmc = np.empty((0, rank), int) 
     modal = modal[:4]
     for datasets in dset_list:
@@ -234,7 +234,7 @@ def cmc_extractor(root_pth=config.evaluation['identification'], modal='periocula
                 base_nm = directs.split('/')[-1]
                 gallery_probe = base_nm.split('/')[-1]
                 modal_base = directs + modal_root
-                feats, lbls = read_images(type_root=modal, root = modal_base)
+                feats, lbls = read_images(type_root=modal, root=modal_base)
                 data_loader_dict[gallery_probe] = feats
                 data_lbl_dict[gallery_probe] = lbls
             # print(datasets)       
@@ -255,8 +255,8 @@ def cmc_extractor(root_pth=config.evaluation['identification'], modal='periocula
         
         # *** ***
         elif datasets == 'ethnic':
-            ethnic_fea_gal, ethnic_lbl_gal = read_images(type_root=modal, root = (root_pth + 'ethnic/Recognition/gallery/' + modal[:4] + '/'))
-            ethnic_fea_pr, ethnic_lbl_pr = read_images(type_root=modal, root = (root_pth + 'ethnic/Recognition/probe/' + modal[:4] + '/'))   
+            ethnic_fea_gal, ethnic_lbl_gal = read_images(type_root=modal, root=(root_pth + 'ethnic/Recognition/gallery/' + modal[:4] + '/'))
+            ethnic_fea_pr, ethnic_lbl_pr = read_images(type_root=modal, root=(root_pth + 'ethnic/Recognition/probe/' + modal[:4] + '/'))   
 
             # ethnic_fea_gal, ethnic_fea_pr = torch.flatten(ethnic_fea_gal, start_dim=1), torch.flatten(ethnic_fea_pr, start_dim=1)
             ethnic_lbl_pr, ethnic_lbl_gal = F.one_hot(ethnic_lbl_pr.unsqueeze(0).to(torch.int64)), F.one_hot(ethnic_lbl_gal.unsqueeze(0).to(torch.int64))
@@ -269,7 +269,7 @@ def cmc_extractor(root_pth=config.evaluation['identification'], modal='periocula
         # print(cmc_dict)
     for ds in cmc_dict:
         total_cmc = np.append(total_cmc, np.array([cmc_dict[ds]]), axis=0)
-    cmc_avg_dict['avg'] = np.mean(total_cmc, axis = 0)
+    cmc_avg_dict['avg'] = np.mean(total_cmc, axis=0)
 
     return cmc_dict, cmc_avg_dict, rng
 
@@ -295,14 +295,14 @@ def cm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10):
             for directs in glob.glob(root_drt):
                 base_nm = directs.split('/')[-1]
                 if base_nm == 'gallery':
-                    peri_fea_gal, peri_lbl_gal = read_images(type_root='peri', root = (directs + '/peri/'))
-                    face_fea_gal, face_lbl_gal = read_images(type_root='face', root = (directs + '/face/'))
+                    peri_fea_gal, peri_lbl_gal = read_images(type_root='peri', root=(directs + '/peri/'))
+                    face_fea_gal, face_lbl_gal = read_images(type_root='face', root=(directs + '/face/'))
                     face_lbl_gal = F.one_hot(face_lbl_gal.to(torch.int64))
                     peri_lbl_gal = F.one_hot(peri_lbl_gal.to(torch.int64))
 
                 else:
-                    peri_fea_pr, peri_lbl_pr = read_images(type_root='peri', root = (directs + '/peri/'))
-                    face_fea_pr, face_lbl_pr = read_images(type_root='face', root = (directs + '/face/'))
+                    peri_fea_pr, peri_lbl_pr = read_images(type_root='peri', root=(directs + '/peri/'))
+                    face_fea_pr, face_lbl_pr = read_images(type_root='face', root=(directs + '/face/'))
                     peri_dl_dict[base_nm] = peri_fea_pr
                     face_dl_dict[base_nm] = face_fea_pr
                     peri_lbl_dict[base_nm] = peri_lbl_pr
@@ -324,13 +324,13 @@ def cm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10):
             cmc_p = np.mean(cmc_lst_p, axis=0)
 
         elif datasets == 'ethnic':
-            p_ethnic_fea_gal, p_ethnic_lbl_gal = read_images(type_root='peri', root = (root_pth + 'ethnic/Recognition/gallery/peri/'))
-            p_ethnic_fea_pr, p_ethnic_lbl_pr = read_images(type_root='peri', root = (root_pth + 'ethnic/Recognition/probe/peri/'))
+            p_ethnic_fea_gal, p_ethnic_lbl_gal = read_images(type_root='peri', root=(root_pth + 'ethnic/Recognition/gallery/peri/'))
+            p_ethnic_fea_pr, p_ethnic_lbl_pr = read_images(type_root='peri', root=(root_pth + 'ethnic/Recognition/probe/peri/'))
             p_ethnic_lbl_pr, p_ethnic_lbl_gal = F.one_hot(p_ethnic_lbl_pr.unsqueeze(0).to(torch.int64)), F.one_hot(p_ethnic_lbl_gal.unsqueeze(0).to(torch.int64))
             p_ethnic_lbl_pr, p_ethnic_lbl_gal = torch.squeeze(p_ethnic_lbl_pr, 0), torch.squeeze(p_ethnic_lbl_gal, 0)
 
-            f_ethnic_fea_gal, f_ethnic_lbl_gal = read_images(type_root='face', root = (root_pth + 'ethnic/Recognition/gallery/face/'))
-            f_ethnic_fea_pr, f_ethnic_lbl_pr = read_images(type_root='face', root = (root_pth + 'ethnic/Recognition/probe/face/'))
+            f_ethnic_fea_gal, f_ethnic_lbl_gal = read_images(type_root='face', root=(root_pth + 'ethnic/Recognition/gallery/face/'))
+            f_ethnic_fea_pr, f_ethnic_lbl_pr = read_images(type_root='face', root=(root_pth + 'ethnic/Recognition/probe/face/'))
             f_ethnic_lbl_pr, f_ethnic_lbl_gal = F.one_hot(f_ethnic_lbl_pr.unsqueeze(0).to(torch.int64)), F.one_hot(f_ethnic_lbl_gal.unsqueeze(0).to(torch.int64))
             f_ethnic_lbl_pr, f_ethnic_lbl_gal = torch.squeeze(f_ethnic_lbl_pr, 0), torch.squeeze(f_ethnic_lbl_gal, 0)
 
@@ -344,15 +344,15 @@ def cm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10):
 
     for ds in cm_cmc_dict_f:
         total_cmc_f = np.append(total_cmc_f, np.array([cm_cmc_dict_f[ds]]), axis=0)
-    cm_cmc_avg_dict_f['avg'] = np.mean(total_cmc_f, axis = 0)
+    cm_cmc_avg_dict_f['avg'] = np.mean(total_cmc_f, axis=0)
 
     for ds in cm_cmc_dict_p:
         total_cmc_p = np.append(total_cmc_p, np.array([cm_cmc_dict_p[ds]]), axis=0)
-    cm_cmc_avg_dict_p['avg'] = np.mean(total_cmc_p, axis = 0)
+    cm_cmc_avg_dict_p['avg'] = np.mean(total_cmc_p, axis=0)
 
     return cm_cmc_dict_f, cm_cmc_avg_dict_f, cm_cmc_dict_p, cm_cmc_avg_dict_p
 
-def mm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10, mode = 'concat'):
+def mm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10, mode='concat'):
     total_cmc = np.empty((0, rank), int) 
     for datasets in dset_list:
         cmc_lst = np.empty((0, rank), int)
@@ -367,8 +367,8 @@ def mm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10, mode
             for directs in glob.glob(root_drt):
                 base_nm = directs.split('/')[-1]
                 gallery_probe = base_nm.split('/')[-1]
-                peri_feats, peri_lbls = read_images(type_root='periocular', root = directs + '/peri/')
-                face_feats, face_lbls = read_images(type_root='face', root = directs + '/face/')
+                peri_feats, peri_lbls = read_images(type_root='periocular', root=directs + '/peri/')
+                face_feats, face_lbls = read_images(type_root='face', root=directs + '/face/')
                 face_data_loader_dict[gallery_probe] = face_feats
                 face_data_lbl_dict[gallery_probe] = face_lbls
                 peri_data_loader_dict[gallery_probe] = peri_feats
@@ -389,16 +389,16 @@ def mm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10, mode
                     face_lbl_pr, face_lbl_gal = F.one_hot(face_lbl_pr.unsqueeze(0).to(torch.int64)), F.one_hot(face_lbl_gal.unsqueeze(0).to(torch.int64))
                     face_lbl_pr, face_lbl_gal = torch.squeeze(face_lbl_pr, 0), torch.squeeze(face_lbl_gal, 0)
 
-                    rng, cmc = calculate_mm_cmc(peri_fea_gal, peri_fea_pr, peri_lbl_gal, peri_lbl_pr, face_fea_gal, face_fea_pr, face_lbl_gal, face_lbl_pr, last_rank=rank, mode = mode)
+                    rng, cmc = calculate_mm_cmc(peri_fea_gal, peri_fea_pr, peri_lbl_gal, peri_lbl_pr, face_fea_gal, face_fea_pr, face_lbl_gal, face_lbl_pr, last_rank=rank, mode=mode)
                     cmc_lst = np.append(cmc_lst, np.array([cmc]), axis=0)
                 
             cmc = np.mean(cmc_lst, axis=0)
         
         elif datasets == 'ethnic':
-            f_ethnic_fea_gal, f_ethnic_lbl_gal = read_images(type_root='face', root = (root_pth + 'ethnic/Recognition/gallery/face/'))
-            f_ethnic_fea_pr, f_ethnic_lbl_pr = read_images(type_root='face', root = (root_pth + 'ethnic/Recognition/probe/face/'))
-            p_ethnic_fea_gal, p_ethnic_lbl_gal = read_images(type_root='periocular', root = (root_pth + 'ethnic/Recognition/gallery/peri/'))
-            p_ethnic_fea_pr, p_ethnic_lbl_pr = read_images(type_root='periocular', root = (root_pth + 'ethnic/Recognition/probe/peri/'))
+            f_ethnic_fea_gal, f_ethnic_lbl_gal = read_images(type_root='face', root=(root_pth + 'ethnic/Recognition/gallery/face/'))
+            f_ethnic_fea_pr, f_ethnic_lbl_pr = read_images(type_root='face', root=(root_pth + 'ethnic/Recognition/probe/face/'))
+            p_ethnic_fea_gal, p_ethnic_lbl_gal = read_images(type_root='periocular', root=(root_pth + 'ethnic/Recognition/gallery/peri/'))
+            p_ethnic_fea_pr, p_ethnic_lbl_pr = read_images(type_root='periocular', root=(root_pth + 'ethnic/Recognition/probe/peri/'))
 
             f_ethnic_lbl_gal, f_ethnic_lbl_pr = F.one_hot(f_ethnic_lbl_gal.unsqueeze(0).to(torch.int64)), F.one_hot(f_ethnic_lbl_pr.unsqueeze(0).to(torch.int64))
             f_ethnic_lbl_gal, f_ethnic_lbl_pr = torch.squeeze(f_ethnic_lbl_gal, 0), torch.squeeze(f_ethnic_lbl_pr, 0)  
@@ -413,8 +413,8 @@ def mm_cmc_extractor(root_pth=config.evaluation['identification'], rank=10, mode
         # print(cmc_dict)
     for ds in cmc_dict:
         total_cmc = np.append(total_cmc, np.array([cmc_dict[ds]]), axis=0)
-    # cmc_dict['avg'] = np.mean(total_cmc, axis = 0)
-    mm_cmc_avg_dict['avg'] = np.mean(total_cmc, axis = 0)
+    # cmc_dict['avg'] = np.mean(total_cmc, axis=0)
+    mm_cmc_avg_dict['avg'] = np.mean(total_cmc, axis=0)
 
     return mm_cmc_dict, mm_cmc_avg_dict, rng
 
@@ -426,7 +426,7 @@ if __name__ == '__main__':
     create_folder(method)
 
     # Compute CMC values (Periocular)
-    peri_cmc_dict, peri_avg_dict, peri_rng = cmc_extractor(root_pth=config.evaluation['identification'], modal='periocular', peri_flag = True, rank=rank)
+    peri_cmc_dict, peri_avg_dict, peri_rng = cmc_extractor(root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, rank=rank)
     peri_cmc_dict = copy.deepcopy(peri_cmc_dict)
     peri_avg_dict = copy.deepcopy(peri_avg_dict)
     print('LBP (Periocular): \n', peri_cmc_dict)
@@ -434,7 +434,7 @@ if __name__ == '__main__':
     torch.save(peri_avg_dict, './data/cmc/' + str(method) + '/peri/peri_avg_dict.pt')
 
     # Compute CMC values (Face)
-    face_cmc_dict, face_avg_dict, face_rng = cmc_extractor(root_pth=config.evaluation['identification'], modal='face', peri_flag = False, rank=rank)
+    face_cmc_dict, face_avg_dict, face_rng = cmc_extractor(root_pth=config.evaluation['identification'], modal='face', peri_flag=False, rank=rank)
     face_cmc_dict = copy.deepcopy(face_cmc_dict)
     face_avg_dict = copy.deepcopy(face_avg_dict)
     print('LBP (Face): \n', face_cmc_dict)    

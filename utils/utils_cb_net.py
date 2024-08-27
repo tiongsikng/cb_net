@@ -49,7 +49,7 @@ class BalancedBatchSampler(BatchSampler):
             np.random.seed(self.count)
             random.seed(self.count)
             classes = np.random.choice(self.labels_set, self.n_classes, replace=False)
-            # classes = np.random.choice(self.labels_set, self.n_classes, replace = True)
+            # classes = np.random.choice(self.labels_set, self.n_classes, replace=True)
             indices = []
             for class_ in classes:
                 indices.extend(self.label_to_indices[class_][
@@ -93,7 +93,7 @@ class BalancedBatchSampler_OPT(BatchSampler):
         self.count = 0
         while self.count + self.batch_size < self.n_dataset:
             # classes = np.random.choice(self.labels_set, self.n_classes, replace=False)
-            classes = np.random.choice(self.labels_set, self.n_classes, replace = True)
+            classes = np.random.choice(self.labels_set, self.n_classes, replace=True)
             indices = []
             for class_ in classes:
                 indices.extend(self.label_to_indices[class_][
@@ -162,13 +162,13 @@ class OnlineTripletLoss(nn.Module):
     triplets
     """
 
-    def __init__(self, margin = 0.7, ap_weight = 0.0, triplet_selector = None):
+    def __init__(self, margin=0.7, ap_weight=0.0, triplet_selector=None):
         super(OnlineTripletLoss, self).__init__()
         self.margin = margin
         self.ap_weight = ap_weight
         self.triplet_selector = triplet_selector
         
-    def forward(self, embeddings, target, target_min = 0, k = 1, ap_flag = False):
+    def forward(self, embeddings, target, target_min=0, k=1, ap_flag=False):
 
         # if k == 0:
         #    k = 1
@@ -445,7 +445,7 @@ class FunctionNegativeTripletSelector(TripletSelector):
     and return a negative index for that pair
     """
 
-    def __init__(self, margin, negative_selection_fn, cpu = True):
+    def __init__(self, margin, negative_selection_fn, cpu=True):
         
         super(FunctionNegativeTripletSelector, self).__init__()
         self.cpu = cpu
@@ -453,12 +453,12 @@ class FunctionNegativeTripletSelector(TripletSelector):
         self.negative_selection_fn = negative_selection_fn
 
     # def get_triplets(self, embeddings, labels):
-    def get_triplets(self, embeddings, labels, label_min = 0, k = 1):
+    def get_triplets(self, embeddings, labels, label_min=0, k=1):
         
         if self.cpu:
             embeddings = embeddings.cpu()
         
-        distance_matrix = 1 - torch.clamp(torch.mm(embeddings, embeddings.t()), min = -1.0, max = 1.0)
+        distance_matrix = 1 - torch.clamp(torch.mm(embeddings, embeddings.t()), min=-1.0, max=1.0)
         distance_matrix = distance_matrix.cpu()
         
         labels = labels.cpu().data.numpy()

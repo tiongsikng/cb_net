@@ -57,7 +57,7 @@ def preprocess_img(params, imagePath):
   return lbp # , hist
 
 
-def read_images(params, type_root, root = None):
+def read_images(params, type_root, root=None):
   features = torch.Tensor([])
   label_nms = []
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
   torch.save(face_probe_emb, './data/lbp/face_probe_emb.pt')
   torch.save(face_probe_lbl, './data/lbp/face_probe_lbl.pt')
 
-  face_gal = validate_identification((torch.flatten(face_gallery_emb, start_dim = 1), face_gallery_lbl), (torch.flatten(face_probe_emb, start_dim = 1), face_probe_lbl))
+  face_gal = validate_identification((torch.flatten(face_gallery_emb, start_dim=1), face_gallery_lbl), (torch.flatten(face_probe_emb, start_dim=1), face_probe_lbl))
   print(face_gal)  
 
   peri_gallery_emb, peri_gallery_lbl = read_images(params, 'peri', config.ethnic['peri_gallery'])
@@ -129,11 +129,11 @@ if __name__ == "__main__":
   torch.save(peri_probe_emb, './data/lbp/peri_probe_emb.pt')
   torch.save(peri_probe_lbl, './data/lbp/peri_probe_lbl.pt')
   
-  probe_gal = validate_identification((torch.flatten(peri_gallery_emb, start_dim = 1), peri_gallery_lbl), (torch.flatten(peri_probe_emb, start_dim = 1), peri_probe_lbl))
+  probe_gal = validate_identification((torch.flatten(peri_gallery_emb, start_dim=1), peri_gallery_lbl), (torch.flatten(peri_probe_emb, start_dim=1), peri_probe_lbl))
   print(probe_gal)
 
-  face_gal = validate_identification((torch.flatten(face_gallery_emb, start_dim = 1), face_gallery_lbl), (torch.flatten(peri_probe_emb, start_dim = 1), peri_probe_lbl))
+  face_gal = validate_identification((torch.flatten(face_gallery_emb, start_dim=1), face_gallery_lbl), (torch.flatten(peri_probe_emb, start_dim=1), peri_probe_lbl))
   print(face_gal)  
 
-  probe_gal = validate_identification((torch.flatten(peri_gallery_emb, start_dim = 1), peri_gallery_lbl), (torch.flatten(face_probe_emb, start_dim = 1), face_probe_lbl))
+  probe_gal = validate_identification((torch.flatten(peri_gallery_emb, start_dim=1), peri_gallery_lbl), (torch.flatten(face_probe_emb, start_dim=1), face_probe_lbl))
   print(probe_gal)

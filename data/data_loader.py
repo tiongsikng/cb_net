@@ -61,7 +61,7 @@ class BalancedBatchSampler(BatchSampler):
             np.random.seed(self.count)
             random.seed(self.count)
             classes = np.random.choice(self.labels_set, self.n_classes, replace=False)
-            # classes = np.random.choice(self.labels_set, self.n_classes, replace = True)
+            # classes = np.random.choice(self.labels_set, self.n_classes, replace=True)
             indices = []
             for class_ in classes:
                 indices.extend(self.label_to_indices[class_][
@@ -109,10 +109,10 @@ def gen_data(path_dir, mode, type='periocular', aug='False'):
                                     FixedImageStandard
                                     ] )
         
-    data_set = datasets.ImageFolder(path_dir, transform = data_trans)        
-    data_sampler = BalancedBatchSampler(data_set.targets, n_classes = batch_sub, n_samples = batch_samp)
+    data_set = datasets.ImageFolder(path_dir, transform=data_trans)        
+    data_sampler = BalancedBatchSampler(data_set.targets, n_classes=batch_sub, n_samples=batch_samp)
     if aug == 'True':
-        data_set_aug = datasets.ImageFolder(path_dir, transform = aug_trans)
+        data_set_aug = datasets.ImageFolder(path_dir, transform=aug_trans)
         # data_sets = ConcatDataset(data_set, data_set_aug)
         data_sets = data_set_aug
     else:
@@ -123,7 +123,7 @@ def gen_data(path_dir, mode, type='periocular', aug='False'):
                                               worker_init_fn = random.seed(seed))
     elif mode == 'train_rand':
         data_loader = torch.utils.data.DataLoader(data_sets, batch_size = batch_size, num_workers = 4,
-                                              worker_init_fn = random.seed(seed), shuffle = True, drop_last = True)
+                                              worker_init_fn = random.seed(seed), shuffle=True, drop_last=True)
     elif mode == 'test' and aug == 'False':
         data_loader = torch.utils.data.DataLoader( data_sets, batch_size = batch_size*4, shuffle = False, 
                                                 num_workers = 6, worker_init_fn = random.seed(seed))
