@@ -3,13 +3,4 @@ runs/
 .ipynb_checkpoints/
 *.pt
 *.pth
-*.chkpt
-*.ckpt
-*.zip
-*.tar
-*.dat
-*.npy
-.vscode/
-*.png
-*.jpeg
-*.jpg
+/data/**/*.jpg

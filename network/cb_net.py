@@ -165,6 +165,6 @@ if __name__ == '__main__':
     embd_dim = 1024
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu') 
 
-    load_model_path = './models/CB_Net/best_model/CB_Net.pth'
+    load_model_path = './models/cb_net/best_model/CB_Net.pth'
     model = CB_Net(embedding_size=embd_dim).eval().to(device)
     model = load_model.load_pretrained_network(model, load_model_path, device=device)

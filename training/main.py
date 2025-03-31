@@ -153,7 +153,6 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     print('Remarks\t\t\t: ', args.remarks)
     print('Net. Descr.\t\t: ', net_descr)
     print('Seed\t\t\t: ', seed)
-    print('Optimizer\t\t: ', opt_des)
     print('Batch # Sub.\t\t: ', batch_sub)
     print('Batch # Samp.\t\t: ', batch_samp)
     print('Batch Size\t\t: ', batch_size)

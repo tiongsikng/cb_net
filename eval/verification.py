@@ -380,7 +380,7 @@ if __name__ == '__main__':
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     mm_mode = 'concat'
 
-    load_model_path = './models/CB_Net/best_model/CB_Net.pth'
+    load_model_path = './models/cb_net/best_model/CB_Net.pth'
     model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
     model = load_model.load_pretrained_network(model, load_model_path, device=device)
 

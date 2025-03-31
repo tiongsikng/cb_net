@@ -7,12 +7,6 @@ method = 'CB_Net'
 remarks = 'Default'
 
 # Set other parameters
-opt_id = 0
-if opt_id == 0:
-    opt_des = 'AdamW'
-else:
-    opt_des = 'SGD'
-
 batch_sub = 16
 batch_samp = 4
 batch_size = batch_sub * batch_samp
