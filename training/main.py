@@ -28,8 +28,8 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     from network.logits import CosFace
     from utils.utils_cb_net import OnlineTripletLoss, HardestNegativeTripletSelector
     import train
-    from eval import verification
-    from eval import identification
+    from eval import cmc_eval_identification as identification
+    from eval import roc_eval_verification as verification
     torch.multiprocessing.set_sharing_strategy('file_system')
     print("Imported.")
 

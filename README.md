@@ -19,12 +19,13 @@ The project directories are as follows:
     * _CMC and ROC data dictionaries are generated in this directory._
     * data_loader.py - Generate training and testing PyTorch dataloader. Adjust the augmentations etc. in this file. Batch size of data is also determined here, based on the values set in `params.py`.
 - eval: Evaluation metrics - Identification and Verification, also contains `.ipynb` files to plot CMC and ROC graphs.
-    * cmc_eval.py - Cumulative Matching Characteristic (CMC) evaluation, also saves `.pt` files for plotting CMC.
+    * cmc_eval_identification.py - Evaluates Rank-1 Identification Rate (IR) and generates Cumulative Matching Characteristic (CMC) curve, which are saved as `.pt` files in `data` directory. Use these `.pt` files to generate CMC curves.
+    * decidability_index.ipynb - Notebook to plot Decidability Index ($d'$) histogram.
     * identification.py - Rank-1 Identification Rate (IR) evaluation.
+    * lbp_extract.py - Local Binary Pattern (LBP) feature extraction and identification calculation.
+    * pearson_correlation.ipynb - Notebook to plot Pearson Correlation ($\rho$) graph.
     * plot_cmc_roc.ipynb - Notebook to plot CMC and ROC side-by-side simulatenously.
-    * plot_histogram.py - Plot <i>d'</i> histogram for inter-modal/intra-modal matching.
-    * roc_eval.py - Receiver Operating Characteristic (ROC) evaluation, also saves `.pt` files for plotting ROC.
-    * verification.py - Verification Equal Error Rate (EER) evaluation.
+    * roc_eval_verification.py - Evaluates Verification Equal Error Rate (EER) and generates Receiver Operating Characteristic (ROC) curve, which are saved as `.pt` files in `data` directory. Use these `.pt` files to generate ROC curves.
 - graphs: Directory where graphs are generated.
     * _CMC and ROC curve graphs are generated in this directory._
 - logs: Directory where logs are generated.
@@ -59,10 +60,11 @@ Ensure that datasets are located in `data` directory. Configure `datasets_config
 ### Testing:
 1. Based on the (pre-)trained models in the `models(/pretrained)` directory, load the correct model and the architecture (in `network` directory) using `load_model.py` file. Change the file accordingly in case of different layer names, etc. 
 2. Evaluation:
-    * Cumulative Matching Characteristic (CMC) curve: Run `cmc_eval.py`. Based on the generated `.pt` files in `data` directory, run `plot_cmc_roc_sota.ipynb` to generate CMC graph.
-    * Identification: Run `identification.py`.
-    * Receiver Operating Characteristic (ROC) curve: Run `roc_eval.py`. Based on the generated `.pt` files in `data` directory, run `plot_cmc_roc_sota.ipynb` to generate ROC graph.
-    * Verification: Run `verification.py`.
+    * Identification / Cumulative Matching Characteristic (CMC) curve: Run `cmc_eval_identification.py`. Based on the generated `.pt` files in `data` directory, run `plot_cmc_roc_sota.ipynb` to generate CMC graph.
+    * Verification / Receiver Operating Characteristic (ROC) curve: Run `roc_eval_verification.py`. Based on the generated `.pt` files in `data` directory, run `plot_cmc_roc_sota.ipynb` to generate ROC graph.
+3. Visualization;
+    * Decidability Index: Run `decidability_index.ipynb` to get the histogram distribution. The decidability index $d'$ will be displayed on the graph.
+    * Pearson Correlation: Run `pearson_correlation.ipynb` to get the correlation curve between periocular and face. The correlation coefficient will be displayed on the graph.
 
 ### Comparison with State-of-the-Art (SOTA) models (Periocular)
 
@@ -70,10 +72,3 @@ Ensure that datasets are located in `data` directory. Configure `datasets_config
 | --- | --- | --- | --- | --- |
 | [PF-GLSR](https://ieeexplore.ieee.org/document/9159854) [(Weights)](https://www.dropbox.com/scl/fo/gc7lnp66p706ecfr3exz2/AF6Jx_LKAeDOaKqDr2rbtMk?rlkey=skqp1kbwrd3uua1fk68qgmu01&st=dyunrk9r&dl=0) | 79.03 | 15.56 | - | - |
 | CB-Net [(Weights)](https://www.dropbox.com/scl/fo/h3grey98yeh0ir7i82lbd/AINQZy8eAEU3F4rXJm50MCE?rlkey=h0i1vv0a36uu4xsd2s41bdnaf&st=3ws0bo5q&dl=0) | 86.96 | 9.62 | 77.26 | 9.80 |
-
-#### Pending Tasks:
-- [ ] Combine CMC and Identification into a single file
-- [ ] Combine ROC and Verification into a single file
-- [ ] Pearson Correlation Graph
-- [ ] Local Binary Pattern
-- [ ] Decidability Histogram
