@@ -125,7 +125,7 @@ def gen_data(path_dir, mode, type='periocular', aug='False'):
         data_loader = torch.utils.data.DataLoader(data_sets, batch_size = batch_size, num_workers = 4,
                                               worker_init_fn = random.seed(seed), shuffle=True, drop_last=True)
     elif mode == 'test' and aug == 'False':
-        data_loader = torch.utils.data.DataLoader( data_sets, batch_size = batch_size*4, shuffle = False, 
+        data_loader = torch.utils.data.DataLoader( data_sets, batch_size = batch_size*16, shuffle = False, 
                                                 num_workers = 6, worker_init_fn = random.seed(seed))
     
     return data_loader, data_set

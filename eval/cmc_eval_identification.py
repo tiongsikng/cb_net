@@ -23,6 +23,9 @@ cm_id_dict_p = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar
 mm_id_dict = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
 
 cmc_dict = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
+cm_cmc_dict_f = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
+cm_cmc_dict_p = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
+mm_cmc_dict = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
 dset_list = ['ethnic', 'pubfig', 'facescrub', 'imdb_wiki', 'ar']
 dset_name = ['Ethnic', 'Pubfig', 'FaceScrub', 'IMDb Wiki', 'AR']
 
@@ -839,7 +842,6 @@ def calculate_mm_cmc(gallery_embedding_peri, probe_embedding_peri, gallery_label
 
 
 def im_cmc_extractor(model, root_pth='./data/', modal='periocular', peri_flag=True, device='cuda:0', rank=10):
-    total_cmc = np.empty((0, rank), int) 
     for datasets in dset_list:
         cmc_lst = np.empty((0, rank), int)
         root_drt = root_pth + datasets + '/**'        
@@ -898,8 +900,6 @@ def cm_cmc_extractor(model, root_pth='./data/', facenet=None, perinet=None, devi
     if facenet is None and perinet is None:
         facenet = model
         perinet = model
-    total_cmc_f = np.empty((0, rank), int) 
-    total_cmc_p = np.empty((0, rank), int) 
 
     for datasets in dset_list:
         cmc_lst_f = np.empty((0, rank), int)
@@ -975,7 +975,7 @@ def mm_cmc_extractor(model, root_pth='./data/', facenet=None, perinet=None, devi
     if facenet is None and perinet is None:
         facenet = model
         perinet = model
-    total_cmc = np.empty((0, rank), int) 
+
     for datasets in dset_list:
         cmc_lst = np.empty((0, rank), int)
         root_drt = root_pth + datasets + '/**'     
@@ -1044,16 +1044,25 @@ def mm_cmc_extractor(model, root_pth='./data/', facenet=None, perinet=None, devi
 if __name__ == '__main__':
     method = 'cb_net'
     rank = 10 # CMC - rank > 1 (graph) or identification - rank = 1 (values)
-    mm_mode = 'concat'
+    mm_modes_list = ['concat', 'mean', 'max', 'score']
     if rank > 1:
         create_folder(method)
     embd_dim = 512
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    load_model_path = './models/cb_net/best_model/CB_Net.pth'
+    load_model_path = './models/best_model/CB_Net.pth'
     model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
     model = load_model.load_pretrained_network(model, load_model_path, device=device)
 
+    load_face_model_path = './models/best_model/CB_Net_Face_Baseline.pth'
+    face_model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    face_model = load_model.load_pretrained_network(face_model, load_face_model_path, device=device)
+
+    load_peri_model_path = './models/best_model/CB_Net_Peri_Baseline.pth'
+    peri_model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    peri_model = load_model.load_pretrained_network(peri_model, load_peri_model_path, device=device)
+
+    #### Compute CMC Values
     peri_cmc_dict = im_cmc_extractor(model, root_pth=config.evaluation['identification'], modal='periocular', peri_flag=True, device=device, rank=rank)
     peri_cmc_dict = get_avg(peri_cmc_dict)
     if rank > 1:
@@ -1082,11 +1091,11 @@ if __name__ == '__main__':
     print('Average (Cross-Modal Periocular): \n', cm_cmc_dict_p['avg'], '±', cm_cmc_dict_p['std']) 
     print('Average (Cross-Modal Face): \n', cm_cmc_dict_f['avg'], '±', cm_cmc_dict_f['std']) 
     
-
-    mm_cmc_dict = mm_cmc_extractor(model, facenet=None, perinet=None, root_pth=config.evaluation['identification'], device=device, rank=rank, mode=mm_mode)
-    mm_cmc_dict = get_avg(mm_cmc_dict)
-    if rank > 1:
-        mm_cmc_dict = copy.deepcopy(mm_cmc_dict)
-        torch.save(mm_cmc_dict, './data/cmc/' + str(method) + '/mm/mm_cmc_dict_' + str(mm_mode) + '.pt')
-    print('Multimodal: \n', mm_cmc_dict)
-    print('Average (Periocular+Face): \n', mm_cmc_dict['avg'], '±', mm_cmc_dict['std']) 
+    for mm_mode in mm_modes_list:
+        mm_cmc_dict = mm_cmc_extractor(model, facenet=None, perinet=None, root_pth=config.evaluation['identification'], device=device, rank=rank, mode=mm_mode)
+        mm_cmc_dict = get_avg(mm_cmc_dict)
+        if rank > 1:
+            mm_cmc_dict = copy.deepcopy(mm_cmc_dict)
+            torch.save(mm_cmc_dict, './data/cmc/' + str(method) + '/mm/mm_cmc_dict_' + str(mm_mode) + '.pt')
+        print('Multimodal: \n', mm_cmc_dict)
+        print('Average (Periocular+Face): \n', mm_cmc_dict['avg'], '±', mm_cmc_dict['std']) 

@@ -17,7 +17,7 @@ torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 torch.multiprocessing.set_sharing_strategy('file_system')
 
-batch_size = 400
+batch_size = 500
 eer_dict = {'ethnic' : 0, 'pubfig' : 0, 'facescrub': 0, 'imdb_wiki' : 0, 'ar' : 0}
 auc_dict = {}
 fpr_dict = {}
@@ -385,17 +385,25 @@ def mm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', mo
 
 
 if __name__ == '__main__':
-    method = 'CB_Net'
+    method = 'cb_net'
     eval_mode = 'roc' # ROC (graph) or verification (values)
-    mm_mode = 'concat'
+    mm_modes_list = ['concat', 'mean', 'max', 'score']
     if eval_mode == 'roc':
         create_folder(method)    
     embd_dim = 512
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    load_model_path = './models/CB_Net/best_model/CB_Net.pth'
+    load_model_path = './models/best_model/CB_Net.pth'
     model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
     model = load_model.load_pretrained_network(model, load_model_path, device=device)
+
+    load_face_model_path = './models/best_model/CB_Net_Face_Baseline.pth'
+    face_model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    face_model = load_model.load_pretrained_network(face_model, load_face_model_path, device=device)
+
+    load_peri_model_path = './models/best_model/CB_Net_Peri_Baseline.pth'
+    peri_model = net.CB_Net(embedding_size=embd_dim, do_prob=0.0).eval().to(device)
+    peri_model = load_model.load_pretrained_network(peri_model, load_peri_model_path, device=device)
 
     #### Compute ROC values
     peri_eer_dict, peri_fpr_dict, peri_tpr_dict, peri_auc_dict = im_verify(model, embd_dim, root_drt=config.evaluation['verification'], peri_flag=True, device=device)
@@ -440,16 +448,17 @@ if __name__ == '__main__':
     print('Cross-Modal: \n', cm_eer_dict)
     print('Average (Periocular-Face):', cm_eer_dict['avg'], '±', cm_eer_dict['std'])    
     
-    mm_eer_dict, mm_fpr_dict, mm_tpr_dict, mm_auc_dict = mm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device, mode=mm_mode)
-    mm_eer_dict = get_avg(mm_eer_dict)
-    if eval_mode == 'roc':
-        mm_eer_dict = copy.deepcopy(mm_eer_dict)
-        mm_fpr_dict = copy.deepcopy(mm_fpr_dict)
-        mm_tpr_dict = copy.deepcopy(mm_tpr_dict)
-        mm_auc_dict = copy.deepcopy(mm_auc_dict)    
-        torch.save(mm_eer_dict, './data/roc/' + str(method) + '/mm/mm_eer_dict_' + str(mm_mode) + '.pt')
-        torch.save(mm_fpr_dict, './data/roc/' + str(method) + '/mm/mm_fpr_dict_' + str(mm_mode) + '.pt')
-        torch.save(mm_tpr_dict, './data/roc/' + str(method) + '/mm/mm_tpr_dict_' + str(mm_mode) + '.pt')
-        torch.save(mm_auc_dict, './data/roc/' + str(method) + '/mm/mm_auc_dict_' + str(mm_mode) + '.pt')
-    print('Multimodal: \n', mm_eer_dict)
-    print('Average (Periocular+Face): \n', mm_eer_dict['avg'], '±', mm_eer_dict['std'])
+    for mm_mode in mm_modes_list:
+        mm_eer_dict, mm_fpr_dict, mm_tpr_dict, mm_auc_dict = mm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device, mode=mm_mode)
+        mm_eer_dict = get_avg(mm_eer_dict)
+        if eval_mode == 'roc':
+            mm_eer_dict = copy.deepcopy(mm_eer_dict)
+            mm_fpr_dict = copy.deepcopy(mm_fpr_dict)
+            mm_tpr_dict = copy.deepcopy(mm_tpr_dict)
+            mm_auc_dict = copy.deepcopy(mm_auc_dict)    
+            torch.save(mm_eer_dict, './data/roc/' + str(method) + '/mm/mm_eer_dict_' + str(mm_mode) + '.pt')
+            torch.save(mm_fpr_dict, './data/roc/' + str(method) + '/mm/mm_fpr_dict_' + str(mm_mode) + '.pt')
+            torch.save(mm_tpr_dict, './data/roc/' + str(method) + '/mm/mm_tpr_dict_' + str(mm_mode) + '.pt')
+            torch.save(mm_auc_dict, './data/roc/' + str(method) + '/mm/mm_auc_dict_' + str(mm_mode) + '.pt')
+        print('Multimodal: \n', mm_eer_dict)
+        print('Average (Periocular+Face): \n', mm_eer_dict['avg'], '±', mm_eer_dict['std'])
