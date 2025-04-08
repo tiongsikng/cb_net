@@ -22,7 +22,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     sys.path.insert(0, os.path.abspath('.'))
     from configs.params import *
     from configs import params
-    from configs import config
+    from configs import datasets_config as config
     from data import data_loader as data_loader
     import network.cb_net as net
     from network.logits import CosFace

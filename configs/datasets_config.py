@@ -1,6 +1,6 @@
 # contains directories of database
 
-main_path = { 'main' : '/home/tiongsik/Python/conditional_biometrics/data' }
+main_path = { 'main' : '/home/Python/cb_net/data' }
 
 evaluation = { 'identification' : main_path['main'] + '/', 'verification' : main_path['main'] }
 
@@ -24,10 +24,6 @@ facescrub = { 'db_name' : 'facescrub',
 'face_gallery' : main_path['main'] + '/facescrub/gallery/face', 'peri_gallery' : main_path['main'] + '/facescrub/gallery/peri',
 'face_probe1' : main_path['main'] + '/facescrub/probe1/face', 'peri_probe1' : main_path['main'] + '/facescrub/probe1/peri',
 'face_probe2' : main_path['main'] + '/facescrub/probe2/face', 'peri_probe2' : main_path['main'] + '/facescrub/probe2/peri' }
-
-ytf = { 'db_name' : 'ytf',
-'face_gallery' : main_path['main'] + '/ytf/gallery/face', 'peri_gallery' : main_path['main'] + '/ytf/gallery/peri',
-'face_probe' : main_path['main'] + '/ytf/probe/face', 'peri_probe1' : main_path['main'] + '/ytf/probe/peri' }
 
 imdb_wiki = { 'db_name' : 'imdb_wiki',
 'face_gallery' : main_path['main'] + '/imdb_wiki/gallery/face', 'peri_gallery' : main_path['main'] + '/imdb_wiki/gallery/peri',
