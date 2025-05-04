@@ -10,7 +10,7 @@ from sklearn.metrics import pairwise
 from sklearn.model_selection import KFold
 import network.cb_net as net
 from network import load_model
-from configs import config as config
+from configs import datasets_config as config
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.deterministic = True

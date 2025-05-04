@@ -8,7 +8,7 @@ from sklearn import preprocessing
 from tqdm import tqdm
 from sklearn.metrics import pairwise
 from torch.nn import functional as F
-from configs import config
+from configs import datasets_config as config
 
 
 class LocalBinaryPatterns:

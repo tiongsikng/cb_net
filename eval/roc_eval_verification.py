@@ -9,7 +9,7 @@ from sklearn.metrics import roc_auc_score, roc_curve
 from torch.nn import functional as F
 import network.cb_net as net
 from network import load_model
-from configs import config as config
+from configs import datasets_config as config
 from data.data_loader import ConvertRGB2BGR, FixedImageStandard
 
 torch.backends.cudnn.enabled = True
@@ -429,7 +429,7 @@ if __name__ == '__main__':
     print('Periocular: \t', peri_eer_dict)    
     print('Average (Periocular):', peri_eer_dict['avg'], '±', peri_eer_dict['std'])    
     
-    face_eer_dict, face_fpr_dict, face_tpr_dict, face_auc_dict = im_verify(model, embd_dim, root_drt=config.evaluation['verification'], peri_flag=False, device=device)
+    face_eer_dict, face_fpr_dict, face_tpr_dict, face_auc_dict = im_verify(model, embd_dim, root_drt=config.evaluation['verification'], peri_flag=False, device=device, eval_mode=eval_mode)
     face_eer_dict = get_avg(face_eer_dict)
     if eval_mode == 'roc':
         face_eer_dict = copy.deepcopy(face_eer_dict)
@@ -443,7 +443,7 @@ if __name__ == '__main__':
     print('Face: \t', face_eer_dict)    
     print('Average (Face):', face_eer_dict['avg'], '±', face_eer_dict['std'])       
 
-    cm_eer_dict, cm_fpr_dict, cm_tpr_dict, cm_auc_dict = cm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device)
+    cm_eer_dict, cm_fpr_dict, cm_tpr_dict, cm_auc_dict = cm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device, eval_mode=eval_mode)
     cm_eer_dict = get_avg(cm_eer_dict)
     if eval_mode == 'roc':
         cm_eer_dict = copy.deepcopy(cm_eer_dict)
@@ -458,7 +458,7 @@ if __name__ == '__main__':
     print('Average (Periocular-Face):', cm_eer_dict['avg'], '±', cm_eer_dict['std'])    
     
     for mm_mode in mm_modes_list:
-        mm_eer_dict, mm_fpr_dict, mm_tpr_dict, mm_auc_dict = mm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device, mode=mm_mode)
+        mm_eer_dict, mm_fpr_dict, mm_tpr_dict, mm_auc_dict = mm_verify(model, face_model=None, peri_model=None, emb_size=embd_dim, root_drt= config.evaluation['verification'], device=device, mode=mm_mode, eval_mode=eval_mode)
         mm_eer_dict = get_avg(mm_eer_dict)
         if eval_mode == 'roc':
             mm_eer_dict = copy.deepcopy(mm_eer_dict)

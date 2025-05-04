@@ -89,7 +89,6 @@ def FixedImageStandard(x):
     return x
 
 
-
 def gen_data(path_dir, mode, type='periocular', aug='False'):
     if mode == 'test' and aug == 'True':
         raise('Testing dataset has augmentation!')
