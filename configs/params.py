@@ -45,31 +45,23 @@ peri_fc_ce_flag = True
 face_peri_loss_flag = True
 
 if face_fc_ce_flag is True and peri_fc_ce_flag is True and face_peri_loss_flag is False:
-    net_descr = 'face_fc w/ CE + peri w/ CE'
-    net_tag = str('11_0')
     tl_id = 0
     tl_m = 0.0
     tl_k = 0.0
     tl_alpha = 0.0
 elif face_fc_ce_flag is True and peri_fc_ce_flag is True and face_peri_loss_flag is True:
-    net_descr = 'face_fc w/ CE + peri w/ CE + Multi-Domain Loss'
     net_tag = str('11_1')
 elif face_fc_ce_flag is False and peri_fc_ce_flag is True and face_peri_loss_flag is False:
-    net_descr = 'Baseline I : peri_fc w/ CE'
-    net_tag = str('01_0B1')
     tl_id = 0
     tl_m = 0.0
     tl_k = 0.0
     tl_alpha = 0.0
 elif face_fc_ce_flag is True and peri_fc_ce_flag is False and face_peri_loss_flag is False:
-    net_descr = 'Baseline I : face_fc w/ CE'
-    net_tag = str('10_0B1')
     tl_id = 0
     tl_m = 0.0
     tl_k = 0.0
     tl_alpha = 0.0
 else:
-    net_descr = 'unknown'
     raise ValueError("Unknown network parameters.")
 
 bn_moment = float(bn_moment)

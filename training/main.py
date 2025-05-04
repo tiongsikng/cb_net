@@ -6,7 +6,6 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     import torch.nn as nn
     import torch.optim as optim
     import torch
-    import torch.multiprocessing
     import pickle
     import numpy as np
     import random
@@ -17,7 +16,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     from datetime import datetime
     import json
     import argparse
-    from torchsummary import summary
+    # from torchsummary import summary
 
     sys.path.insert(0, os.path.abspath('.'))
     from configs.params import *
@@ -151,7 +150,6 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     print('Start Time \t\t: ', start_string)
     print('Method (Backbone)\t: ', args.method)
     print('Remarks\t\t\t: ', args.remarks)
-    print('Net. Descr.\t\t: ', net_descr)
     print('Seed\t\t\t: ', seed)
     print('Batch # Sub.\t\t: ', batch_sub)
     print('Batch # Samp.\t\t: ', batch_samp)
@@ -209,7 +207,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
     in_features  = model.linear.in_features
     out_features = args.dim 
 
-    # for MobileFaceNet
+    # for MobileFaceNet and CB-Net
     model.linear = nn.Linear(in_features, out_features, bias=True)                      # Deep Embedding Layer
     model.bn = nn.BatchNorm1d(out_features, eps=1e-5, momentum=0.1, affine=True) # BatchNorm1d Layer
 
@@ -315,13 +313,11 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
                                 {'params': parameters_peri_fc, 'lr': lr*10, 'weight_decay': args.w_decay},
                             ], lr = args.lr, weight_decay = args.w_decay)
 
-    # opt_params = list(model.parameters()) + list(face_fc.parameters()) + list(peri_fc.parameters())
-    # optimizer = optim.AdamW(opt_params, lr=args.lr, weight_decay=args.w_decay)
     scheduler = lr_scheduler.MultiStepLR(optimizer, milestones=lr_sch, gamma=0.1)
 
     metrics = { 'fps': train.BatchTimer(), 'acc': train.accuracy}
 
-    net_params = { 'network' : net_descr, 'method' : args.method, 'remarks' : args.remarks,
+    net_params = { 'network' : args.method, 'remarks' : args.remarks,
                 'face_fc_ce_flag' : face_fc_ce_flag, 'peri_fc_ce_flag' : peri_fc_ce_flag, 'face_peri_loss_flag' : face_peri_loss_flag,
                 'face_num_sub' : face_num_sub, 'peri_num_sub': peri_num_sub, 'scale' : cf_s, 'margin' : cf_m,
                 'lr' : args.lr, 'lr_sch': lr_sch, 'w_decay' : args.w_decay, 'dropout' : args.dropout,
@@ -354,7 +350,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
 
     if args.write_log is True:
         file = open(log_nm, 'a+')
-        file.write(str(net_descr) + "\n")
+        file.write(str(args.method) + "\n")
         file.write('Training started at ' + str(start_) + ".\n\n")
         file.write('Model parameters: \n')
         file.write(json.dumps(net_params) + "\n\n")
@@ -362,11 +358,6 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
 
     # *** ***
     #### Begin Training
-
-    best_train_acc = 0
-    best_test_acc = 0
-    best_epoch = 0
-
     peri_best_test_acc = 0
     peri_best_pr_test_acc = 0
 
@@ -469,7 +460,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
             print()
             
             # Set save_best_model_path
-            tag = str(args.method) +  '/' + net_tag + '_' + str(batch_sub) + '_' + str(batch_samp) + '/'
+            tag = str(args.method) +  '/' + net_tag + '/'
             
             save_best_model_dir = './models/best_model/' + tag
             if not os.path.exists(save_best_model_dir):
@@ -487,7 +478,7 @@ if __name__ == '__main__': # used for Windows freeze_support() issues
             if not os.path.exists(save_best_acc_dir):
                 os.makedirs(save_best_acc_dir)  
                     
-            tag = str(args.method) + '_S' + str(cf_s) + '_M' + str(cf_m) + '_' + str(args.remarks) 
+            tag = str(args.method) + '_' + str(args.remarks) 
 
             save_best_model_path = save_best_model_dir + tag + '_' + str(start_string) + '.pth'
             save_best_face_fc_path = save_best_face_fc_dir + tag + '_' + str(start_string) + '.pth' 

@@ -76,15 +76,18 @@ class BalancedBatchSampler(BatchSampler):
 
     def __len__(self):
         return self.n_dataset // self.batch_size
+    
 
 def ConvertRGB2BGR(x):
     x = np.float32(x)
     x = cv2.cvtColor(x, cv2.COLOR_RGB2BGR) 
     return x    
 
+
 def FixedImageStandard(x):
     x = (x - 127.5) * 0.0078125
     return x
+
 
 
 def gen_data(path_dir, mode, type='periocular', aug='False'):
@@ -125,7 +128,7 @@ def gen_data(path_dir, mode, type='periocular', aug='False'):
         data_loader = torch.utils.data.DataLoader(data_sets, batch_size = batch_size, num_workers = 4,
                                               worker_init_fn = random.seed(seed), shuffle=True, drop_last=True)
     elif mode == 'test' and aug == 'False':
-        data_loader = torch.utils.data.DataLoader( data_sets, batch_size = batch_size*16, shuffle = False, 
+        data_loader = torch.utils.data.DataLoader( data_sets, batch_size = batch_size*4, shuffle = False, 
                                                 num_workers = 6, worker_init_fn = random.seed(seed))
     
     return data_loader, data_set

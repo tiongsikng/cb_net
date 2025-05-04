@@ -121,7 +121,7 @@ class dataset(data.Dataset):
         return ocular, onehot
     
 
-def im_verify(model, emb_size=512, root_drt='./data', peri_flag=True, device='cuda:0'):
+def im_verify(model, emb_size=512, root_drt='./data', peri_flag=True, device='cuda:0', eval_mode='verify'):
     if peri_flag is True:
         modal = 'periocular'
     else:
@@ -183,10 +183,13 @@ def im_verify(model, emb_size=512, root_drt='./data', peri_flag=True, device='cu
             auc_dict[dset_name] = auc
             eer_dict[dset_name] = compute_eer(fpr_tmp, tpr_tmp)
 
-    return eer_dict, fpr_dict, tpr_dict, auc_dict
+    if eval_mode == 'verify':
+        return eer_dict
+    elif eval_mode == 'roc':
+        return eer_dict, fpr_dict, tpr_dict, auc_dict
 
 
-def cm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', device='cuda:0'):
+def cm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', device='cuda:0', eval_mode='verify'):
     for dset_name in dset_list:
         embedding_size = emb_size       
         
@@ -272,10 +275,13 @@ def cm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', de
             tpr_dict[dset_name] = tpr_tmp
             auc_dict[dset_name] = auc
 
-    return eer_dict, fpr_dict, tpr_dict, auc_dict
+    if eval_mode == 'verify':
+        return eer_dict
+    elif eval_mode == 'roc':
+        return eer_dict, fpr_dict, tpr_dict, auc_dict
 
 
-def mm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', mode='concat', device='cuda:0'):
+def mm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', mode='concat', device='cuda:0', eval_mode='verify'):
     for dset_name in dset_list:
         embedding_size = emb_size       
         
@@ -381,7 +387,10 @@ def mm_verify(model, face_model, peri_model, emb_size=512, root_drt='./data', mo
             tpr_dict[dset_name] = tpr_tmp
             auc_dict[dset_name] = auc
 
-    return eer_dict, fpr_dict, tpr_dict, auc_dict
+    if eval_mode == 'verify':
+        return eer_dict
+    elif eval_mode == 'roc':
+        return eer_dict, fpr_dict, tpr_dict, auc_dict
 
 
 if __name__ == '__main__':
